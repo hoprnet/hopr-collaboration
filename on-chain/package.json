@@ -9,13 +9,15 @@
     "build": "yarn clean && yarn build:sol && tsc && mkdir -p ./lib/chain && cp -R ./chain/abis ./lib/chain/abis",
     "build:sol": "hardhat compile && hardhat extract",
     "test": "hardhat test --no-compile --network hardhat",
-    "coverage": "hardhat coverage --network hardhat"
+    "coverage": "hardhat coverage --network hardhat",
+    "deploy": "hardhat deploy --network kovan"
   },
   "engines": {
     "node": "15",
     "yarn": "1"
   },
   "dependencies": {
+    "chalk": "^4.1.0",
     "dotenv": "^8.2.0"
   },
   "devDependencies": {
@@ -29,7 +31,6 @@
     "@types/chai": "^4.2.15",
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.35",
-    "ansi-colors": "^4.1.1",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.0.32",
