@@ -36,7 +36,7 @@ describe('ChainOnAChip', function () {
             ["Chip", chipAddress, chip.privateKey, chip.publicKey],
             ["User", userAddress, user.privateKey, user.publicKey],
             ["On-chain contract", ethereumContract.address],
-            ["Third party", thridPartyAddress],
+            ["Third party", thridPartyAddress, getPrivateKeyFromLocalSigners(0).privateKey],
             ["Unique device ID", uniqueDeviceId],
         ]);
     }
@@ -124,6 +124,21 @@ describe('ChainOnAChip', function () {
 
         it('verifies [1]', async function () {
             expect(await ethereumContract.verify(uniqueDeviceId, typedData[1])).to.equal(true);
+        })
+   
+        it('test sign', async function () {
+            const prevHash = "0x8f6b072a5ca7816f308a6952d6348dd8247682cce17f2f01e63ee26dcd0ef043";
+            const toBeSigned = "0x4b3cc390b9067686f13bb3722f2a9bfdc4cb53e041116b14c46f154276e892d0";
+            const chipSig = utils.joinSignature(chip.signDigest(toBeSigned));
+            const digest = utils.keccak256(chipSig);
+            const userSig = utils.joinSignature(user.signDigest(digest));
+            console.table([
+                ["prevHash", prevHash],
+                ["toBeSigned", toBeSigned],
+                ["chipSig", chipSig],
+                ["digest", digest],
+                ["userSig", userSig],
+            ])
         })
 
     })
