@@ -9,8 +9,9 @@
     "build": "yarn clean && yarn build:sol && tsc && mkdir -p ./lib/chain && cp -R ./chain/abis ./lib/chain/abis",
     "build:sol": "hardhat compile && hardhat extract",
     "test": "hardhat test --no-compile --network hardhat",
+    "demo-register": "hardhat demo-register --network hardhat",
     "coverage": "hardhat coverage --network hardhat",
-    "deploy": "hardhat deploy --network kovan"
+    "deploy": "hardhat deploy --network sokol"
   },
   "engines": {
     "node": "15",

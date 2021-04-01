@@ -12,12 +12,16 @@ import 'solidity-coverage'
 const {ETHERSCAN, INFURA, DEPLOYER_PRIVATE_KEY} = process.env
 
 const hardhatConfig: HardhatUserConfig = {
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA}`,
+      accounts: [DEPLOYER_PRIVATE_KEY]
+    },
+    sokol: {
+      url: `https://sokol.poa.network`,
       accounts: [DEPLOYER_PRIVATE_KEY]
     }
   },
@@ -58,7 +62,19 @@ task('deploy', 'Deploy contract to ethereum')
     console.log(`Deploying to ${chalk.hex('#ffffa0').bgHex('#00005f')(` ${hre.network.name} `)}`);
     const artifact = await hre.ethers.getContractFactory('ChainOnAChip');
     const contract = await artifact.deploy();
-    console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Greeter ')} deployed to ${contract.address}`);
+    console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' ChainOnAChip ')} deployed to ${contract.address}`);
+});
+
+task('demo-register', 'Display two sets of private and public keys for demo')
+  .addParam('chip', 'Index of the HD wallet where chip keys are stored')
+  .addParam('user', 'Index of the HD wallet whereuser keys are stored')
+  .setAction(async (taskArgs, hre: HardhatRuntimeEnvironment) => {
+    const [thirdParty] = await hre.ethers.getSigners();
+    const thridPartyAddress = await thirdParty.getAddress();
+    const chip = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.chip}`).privateKey);
+    const user = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.user}`).privateKey);
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` Relayer `)} ${thridPartyAddress}`);
+    console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index register ${chip.publicKey} ${user.publicKey}`);
 });
 
 export default hardhatConfig

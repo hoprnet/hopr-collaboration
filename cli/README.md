@@ -8,7 +8,7 @@ Chip records data e.g. 10s of data and calculates hash in an ongoing fashion in 
 1. Install [node version manager (nvm)](https://github.com/nvm-sh/nvm)
 2. Install node version 15 
     ```
-    nvm install 15.12.0`
+    nvm install 15.12.0
     ```
 3. Use node of verion 15 
     ```
