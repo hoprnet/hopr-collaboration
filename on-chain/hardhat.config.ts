@@ -10,7 +10,7 @@ import '@nomiclabs/hardhat-solhint'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-solhint'
 import 'solidity-coverage'
-import { boolean } from 'hardhat/internal/core/params/argumentTypes';
+import { boolean, int} from 'hardhat/internal/core/params/argumentTypes';
 
 const {ETHERSCAN, INFURA, DEPLOYER_PRIVATE_KEY} = process.env
 
@@ -116,7 +116,6 @@ task('demo-compute-and-sign-hash', 'Computes a non-first block hash with given d
     const hashes = (await fs.readFile('../cli/result.txt', "utf8")).split('\n');
     const prevHash = hashes[hashes.length-1];
     const typed = {isFirstBlock: taskArgs.first, previousHash: prevHash, data: taskArgs.first ? "" : taskArgs.data};
-    console.log(typed);
     const hash = await getDataLocalRpc(taskArgs.address, taskArgs.chain, typed);
 
     // sign hash
@@ -127,6 +126,23 @@ task('demo-compute-and-sign-hash', 'Computes a non-first block hash with given d
     console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   Chip  `)} PriKey: ${chip.privateKey} - PubKey: ${chip.publicKey}`);
     console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   User  `)} PriKey: ${user.privateKey} - PubKey: ${user.publicKey}`);
     console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index dumphash ${hashes[0]} ${hash} ${chipSig} ${userSig}`);
+});
+
+task('demo-verify-hash', 'Outputs command for verifying a hash')
+  .addParam('index', 'Index of the hash to be verified. First block is 1', 1, int)
+  .addOptionalParam('first', 'If current hash is the first block hash', true, boolean)
+  .addOptionalParam('data', 'String to be included in the block', '')
+  .setAction(async (taskArgs, hre: HardhatRuntimeEnvironment) => {
+    const [thirdParty] = await hre.ethers.getSigners();
+    const thridPartyAddress = await thirdParty.getAddress();
+    const hashes = (await fs.readFile('../cli/result.txt', "utf8")).split('\n');
+    const prevHash = hashes[taskArgs.index];
+    console.log(taskArgs.data);
+    const data = taskArgs.data ? `"${taskArgs.data}"` : `""`;
+
+    // sign hash
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` Relayer `)} ${thridPartyAddress}`);
+    console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index verify ${taskArgs.first ? "-f " :" "}${hashes[0]} ${prevHash} ${data}`);
 });
 
 export default hardhatConfig

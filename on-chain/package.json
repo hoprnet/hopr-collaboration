@@ -11,6 +11,7 @@
     "test": "hardhat test --no-compile --network hardhat",
     "demo-register": "hardhat demo-register --network hardhat",
     "demo-dumphash": "hardhat demo-compute-and-sign-hash --network hardhat",
+    "demo-verify": "hardhat demo-verify-hash --network hardhat",
     "coverage": "hardhat coverage --network hardhat",
     "deploy": "hardhat deploy --network sokol"
   },

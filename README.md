@@ -78,3 +78,26 @@ node dist/index dumphash 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a
 
 ### Verify - onchain
 This part will be moved from onchain to offchain. The current documentation is valid for on-chain verification. 
+
+#### First block
+1. In terminal B, run
+```
+yarn demo-verify --index 1 --first true
+```
+where index refers to the index of hash saved in the `result.txt` file. For start-block, the value is 1.
+
+2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
+```
+node dist/index verify -f 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x9c0039cd49ee6213c0e0acddc9e2bf167a82b555c9ff64263879705bc6466644 ""
+```
+#### Other blocks
+1. In terminal B, run
+```
+yarn demo-verify --index 2 --first false --data "some test data here"
+```
+
+where index refers to the index of hash saved in the `result.txt` file. The minimum value is 1 (start block).
+You can replace the `"some test data here"` with the data you used in the previous step.
+```
+node dist/index verify  0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x13e4422a8db5c5b4f9dc15d3d8d5576009cf08f1a14e9d598d361ebfc468738d "some test data here"
+```
