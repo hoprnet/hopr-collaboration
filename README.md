@@ -41,9 +41,40 @@ where `1` and `2` stands for the index of public keys given by the test setup.
 The returned unique ID is saved in the `result.txt` file.
 
 ### Startup
-In terminal A, run
+1. In terminal A, run
 ```
 node dist/index startup
 ```
-It returns the latest on chain block hash (`prevHash` of the fistblock) as well as the hash0 to be signed ty the device-user keys.
-Both hashes are saved in the `result.txt` file, where the blockhash is saved in the first line and the hash0 is in the second line.
+It returns the latest on chain block hash, which will be used as `prevHash` of the fistblock. This hash is appended as the second line in the result.txt` file. 
+
+Copy the blockhash
+
+### Runtime - dump hash
+#### First hash 
+1. In terminal B, run
+```
+yarn demo-dumphash --chip 1 --user 2 --first true --address 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707 --chain 77
+```
+where both indexes are exactly the same as in [Register](###Register).
+
+This test command will automatically pull the block hash returned from blockchain at step [Startup](###Startup) from the `result.txt` file as the `previousHash` to construct the data that will be later signed by both chip and user.
+
+2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
+```
+node dist/index dumphash 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x13e4422a8db5c5b4f9dc15d3d8d5576009cf08f1a14e9d598d361ebfc468738d 0x3b0fbf53f03acb30b7846d4be14c66c1c79821d36f3fa068dc2916ccd6b938b136a41c7e581bf5e478640a96df9a7855185b9751ef9d5b92df630a9fbbe2fdb81b 0xf43e575b371b0f70cd81c4e3732c60819dd233e1e409febce71d0607726cf59340455ceb20118b5964f7a45443c15fc5a5ed2bbf2a7962faf4be85e4a6b9c0d41c
+```
+#### Other hash 
+1. In terminal B, run
+```
+yarn demo-dumphash --chip 1 --user 2 --first false --data "some test data here" --address 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707 --chain 77
+```
+where both indexes are exactly the same as in [Register](###Register).
+You can replace the `"some test data here"` with whatever data you prefer.
+
+2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
+```
+node dist/index dumphash 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x4a97086e6e167f6ce080bda50871b97d6833efaa46b01d94c3381c46bf0d4fba 0x4192e2c64ea27144776bb7c0ae19e261ef9bd2674c8754da493c15e75a4b9abe5839537b6192bae2f02abf63554d7c47b77a609b9c3da20177e4d6a5eba98adb1c 0xd791ad890a23645be687edadeffa5c21bd7b58011bb8b946f248f3ddaeb3d3c17dca75460fdd67e275e80169b695cb2b198aa00485988fdfc8f334db6ab4da521b
+```
+
+### Verify - onchain
+This part will be moved from onchain to offchain. The current documentation is valid for on-chain verification. 

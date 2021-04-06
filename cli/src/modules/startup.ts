@@ -1,7 +1,7 @@
 import Listr from 'listr';
 import { promises as fs } from 'fs';
 import { Signer, Wallet } from "ethers";
-import { getData, contract, provider, explorerBlock } from "../web3/web3";
+import { contract, provider, explorerBlock } from "../web3/web3";
 
 export const startup = async (network: string | undefined, signer: Signer | undefined): Promise<[string, string]> => {
     const tasks = new Listr([
@@ -32,22 +32,14 @@ export const startup = async (network: string | undefined, signer: Signer | unde
             }
         },
         {
-            title: 'Compute hash 0',
-            task: async (ctx: Listr.ListrContext) => {
-              const typedData0 = {isFirstBlock: true, previousHash: ctx.blockHash, data: ""};
-              ctx.hash0 = await getData(ctx.contract, typedData0);
-            }
-        },
-        {
             title: 'Save to local result.txt',
             task: async (ctx: Listr.ListrContext) => {
-                await fs.writeFile('./result.txt', ctx.blockHash, 'utf8');
-                await fs.appendFile('./result.txt', "\n"+ctx.hash0, 'utf8');
+                await fs.appendFile('./result.txt', "\n"+ctx.blockHash, 'utf8');
             }
         }
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Latest on-chain block hash ${ctx.blockHash}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)} \n hash0 to be signed ${ctx.hash0}`);
+    console.log(`Latest on-chain block hash ${ctx.blockHash}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)}`);
     return [ctx.blockHash, ctx.hash0];
 }

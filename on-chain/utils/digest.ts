@@ -81,6 +81,33 @@ export async function getUniqueDeviceId(
       )
     )
   }
+  export async function getDataLocalRpc(
+    address: string,
+    chainId: number,
+    data: {
+      isFirstBlock: boolean,
+      previousHash: string,
+      data: string
+    }
+  ): Promise<string> {
+    const DOMAIN_SEPARATOR = getDomainSeparator(address, chainId)
+    return keccak256(
+      solidityPack(
+        ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+        [
+          '0x19',
+          '0x01',
+          DOMAIN_SEPARATOR,
+          keccak256(
+            defaultAbiCoder.encode(
+              ['bytes32', 'bool', 'bytes32', 'string'],
+              [DATA_TYPEHASH, data.isFirstBlock, data.previousHash, data.data]
+            )
+          )
+        ]
+      )
+    )
+  }
 
 export const signTransactions = async (signingKey: utils.SigningKey, message: string): Promise<{v:number, r:string, s:string}> => {
   const {r, s, v} = signingKey.signDigest(message);
