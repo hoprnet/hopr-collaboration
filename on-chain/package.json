@@ -1,5 +1,5 @@
 {
-  "name": "@hoprnet/collaboration",
+  "name": "@hoprnet/collaboration-contract",
   "version": "0.1.0",
   "description": "PoC for Chain on a Chip",
   "main": "index.js",
@@ -10,6 +10,8 @@
     "build:sol": "hardhat compile && hardhat extract",
     "test": "hardhat test --no-compile --network hardhat",
     "demo-register": "hardhat demo-register --network hardhat",
+    "demo-dumphash": "hardhat demo-compute-and-sign-hash --network hardhat",
+    "demo-verify": "hardhat demo-verify-hash --network hardhat",
     "coverage": "hardhat coverage --network hardhat",
     "deploy": "hardhat deploy --network sokol"
   },

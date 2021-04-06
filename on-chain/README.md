@@ -15,7 +15,7 @@ Chip records data e.g. 10s of data and calculates hash in an ongoing fashion in 
     ```
     nvm use
     ```
-    
+    This command is always required when opening a new terminal window. 
 - Install packages 
     ```
     yarn
@@ -33,7 +33,51 @@ Chip records data e.g. 10s of data and calculates hash in an ongoing fashion in 
     ```
     yarn coverage
     ```
+- Deploy a new smart contract to Sokol network
+    ```
+    yarn deploy
+    ```
+    It wil return a newly deployed contract address. This address can later be saved in the `chain-on-a-chip/cli/src/web3/web3.ts` file, L.14. Noted that a `yarn build` under the `cli` folder is needed, when any code in that folder is changed. 
 
+### Data structure
+
+Device registration hash is computed from 
+```
+keccak256(
+    "\x19\x01", 
+    keccak256(
+        keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+        keccak256('Chain on a Chip'),
+        keccak256('1'),
+        chainId,
+        contractAddress
+    ),
+    keccak256(
+        keccak256('Device(address,address)'), 
+        chipAddress, 
+        userAddress,
+    )
+)
+```
+Block registration hash is computed from
+```
+keccak256(
+    "\x19\x01", 
+    keccak256(
+        keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
+        keccak256('Chain on a Chip'),
+        keccak256('1'),
+        chainId,
+        contractAddress
+    ),
+    keccak256(
+        keccak256('Data(bool,bytes32,string)'), 
+        isFirstBlock, 
+        previousHash, 
+        data
+    )
+)
+```
 ### Status
 
 Current code coverage is 

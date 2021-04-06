@@ -1,6 +1,7 @@
 import Listr from 'listr';
+import { promises as fs } from 'fs';
 import { constants, Signer, utils, Wallet } from "ethers";
-import { BLOCK_CONFIRMATION, contract, getUniqueDeviceId, provider } from "../web3/web3";
+import { BLOCK_CONFIRMATION, contract, explorerTx, getUniqueDeviceId, provider } from "../web3/web3";
 
 export const register = async (devicePubKey: string, userPubKey: string, network: string | undefined, signer: Signer | undefined): Promise<string> => {
     const tasks = new Listr([
@@ -12,7 +13,7 @@ export const register = async (devicePubKey: string, userPubKey: string, network
                     web3Provider = provider(network ?? '');
                 } catch {
                     console.warn('No provider specified. Using default network and provider.');
-                    web3Provider = provider('kovan');
+                    web3Provider = provider('sokol');
                 }
                 const relayer = signer ?? new Wallet(process.env.LOCAL_RELAYER_PRIVATE_KEY as string, web3Provider);
                 const registerContract = contract(web3Provider); 
@@ -39,14 +40,23 @@ export const register = async (devicePubKey: string, userPubKey: string, network
                 console.log(`Device/user pair is registered.`);
                 return registered.chip !== constants.AddressZero;
             },
-            task: async (ctx: Listr.ListrContext) => {
+            task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 const tx = await ctx.contract.connect(ctx.relayer).register({chip:ctx.chip, user:ctx.user});
+                ctx.hash = tx.hash;
+                task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
+                task.output = `Follow transaction status at ${explorerTx(ctx.provider, tx.hash)}`;
                 await ctx.provider.waitForTransaction(tx.hash, BLOCK_CONFIRMATION);
+            }
+        },
+        {
+            title: 'Save to local result.txt',
+            task: async (ctx: Listr.ListrContext) => {
+                await fs.writeFile('./result.txt', ctx.uniqueId, 'utf8');
             }
         }
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}`);
+    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}. See transaction status at ${explorerTx(ctx.provider, ctx.hash)}`);
     return ctx.uniqueId;
 }

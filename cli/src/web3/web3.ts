@@ -11,7 +11,7 @@ export const BLOCK_CONFIRMATION = 3;
 
 // supported network
 export const SUPPORTED_NETWORK: {[key: string]: string} = {
-    "sokol": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    "sokol": "0x9A676e781A523b5d0C0e43731313A708CB607508",
     "kovan": "0x93639eb65c0e78262f9f92291e8d885039c9de0a"
 };
 
@@ -29,12 +29,22 @@ export const provider = (network: string, etherscanKey?: string, infuraKey?: str
     const etherscan = etherscanKey ?? process.env.ETHERSCAN_API_KEY;
     const infura = infuraKey ?? process.env.INFURA_PROJECT_ID;
     if (SUPPORTED_NETWORK.hasOwnProperty(network)) {
-        return network === "sokol" ? ethers.getDefaultProvider(network) : ethers.getDefaultProvider(network, {
+        return network === "kovan" ? ethers.getDefaultProvider(network, {
             etherscan,
             infura 
+        }) : new ethers.providers.JsonRpcProvider("https://sokol.poa.network", {
+          name: 'sokol',
+          chainId: 77
         });
     }
     throw Error(`Network not supported. Please switch to ${Object.keys(SUPPORTED_NETWORK)}`);
+}
+
+export const explorerTx = (provider: ethers.providers.BaseProvider, txHash: string): string => {
+  return provider.network.name === 'sokol' ? `https://blockscout.com/poa/sokol/tx/${txHash}` : `https://${provider.network.name}.etherscan.io/tx/${txHash}`;
+}
+export const explorerBlock = (provider: ethers.providers.BaseProvider, blockNumber: number): string => {
+  return provider.network.name === 'sokol' ? `https://blockscout.com/poa/sokol/blocks/${blockNumber}` : `https://${provider.network.name}.etherscan.io/block/${blockNumber}`;
 }
 
 export const contract = (provider: ethers.providers.BaseProvider) => {

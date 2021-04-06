@@ -19,7 +19,7 @@ export const verify = async (
                     web3Provider = provider(network ?? '');
                 } catch {
                     console.warn('No provider specified. Using default network and provider.');
-                    web3Provider = provider('kovan');
+                    web3Provider = provider('sokol');
                 }
                 const relayer = signer ?? new Wallet(process.env.LOCAL_RELAYER_PRIVATE_KEY as string, web3Provider);
                 const registerContract = contract(web3Provider); 

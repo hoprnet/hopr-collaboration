@@ -2,12 +2,15 @@ require('dotenv').config()
 import { HardhatUserConfig, task} from 'hardhat/config'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import chalk from 'chalk'
+import { promises as fs } from 'fs';
+import { getDataLocalRpc } from './utils/digest';
 import 'hardhat-typechain'
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-solhint'
 import '@nomiclabs/hardhat-etherscan'
 import '@nomiclabs/hardhat-solhint'
 import 'solidity-coverage'
+import { boolean, int} from 'hardhat/internal/core/params/argumentTypes';
 
 const {ETHERSCAN, INFURA, DEPLOYER_PRIVATE_KEY} = process.env
 
@@ -74,7 +77,53 @@ task('demo-register', 'Display two sets of private and public keys for demo')
     const chip = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.chip}`).privateKey);
     const user = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.user}`).privateKey);
     console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` Relayer `)} ${thridPartyAddress}`);
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   Chip  `)} PriKey: ${chip.privateKey} - PubKey: ${chip.publicKey}`);
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   User  `)} PriKey: ${user.privateKey} - PubKey: ${user.publicKey}`);
     console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index register ${chip.publicKey} ${user.publicKey}`);
+});
+
+task('demo-compute-and-sign-hash', 'Computes a non-first block hash with given data')
+  .addParam('chip', 'Index of the HD wallet where chip keys are stored')
+  .addParam('user', 'Index of the HD wallet whereuser keys are stored')
+  .addParam('address', 'Contract address')
+  .addParam('chain', 'Chain ID')
+  .addOptionalParam('first', 'If current hash is the first block hash', true, boolean)
+  .addOptionalParam('data', 'String to be included in the block', '')
+  .setAction(async (taskArgs, hre: HardhatRuntimeEnvironment) => {
+    const [thirdParty] = await hre.ethers.getSigners();
+    const thridPartyAddress = await thirdParty.getAddress();
+    const chip = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.chip}`).privateKey);
+    const user = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.user}`).privateKey);
+    const hashes = (await fs.readFile('../cli/result.txt', "utf8")).split('\n');
+    const prevHash = hashes[hashes.length-1];
+    const typed = {isFirstBlock: taskArgs.first, previousHash: prevHash, data: taskArgs.first ? "" : taskArgs.data};
+    const hash = await getDataLocalRpc(taskArgs.address, taskArgs.chain, typed);
+
+    // sign hash
+    const chipSig = hre.ethers.utils.joinSignature(chip.signDigest(hash));
+    const digest = hre.ethers.utils.keccak256(chipSig);
+    const userSig = hre.ethers.utils.joinSignature(user.signDigest(digest));
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` Relayer `)} ${thridPartyAddress}`);
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   Chip  `)} PriKey: ${chip.privateKey} - PubKey: ${chip.publicKey}`);
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   User  `)} PriKey: ${user.privateKey} - PubKey: ${user.publicKey}`);
+    console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index dumphash ${hashes[0]} ${hash} ${chipSig} ${userSig}`);
+});
+
+task('demo-verify-hash', 'Outputs command for verifying a hash')
+  .addParam('index', 'Index of the hash to be verified. First block is 1', 1, int)
+  .addOptionalParam('first', 'If current hash is the first block hash', true, boolean)
+  .addOptionalParam('data', 'String to be included in the block', '')
+  .setAction(async (taskArgs, hre: HardhatRuntimeEnvironment) => {
+    const [thirdParty] = await hre.ethers.getSigners();
+    const thridPartyAddress = await thirdParty.getAddress();
+    const hashes = (await fs.readFile('../cli/result.txt', "utf8")).split('\n');
+    const prevHash = hashes[taskArgs.index];
+    console.log(taskArgs.data);
+    const data = taskArgs.data ? `"${taskArgs.data}"` : `""`;
+
+    // sign hash
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` Relayer `)} ${thridPartyAddress}`);
+    console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index verify ${taskArgs.first ? "-f " :" "}${hashes[0]} ${prevHash} ${data}`);
 });
 
 export default hardhatConfig
