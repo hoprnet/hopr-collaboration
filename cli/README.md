@@ -5,6 +5,7 @@ Required tool that validates that a certain amount of data is indeed recorded wi
 Chip records data e.g. 10s of data and calculates hash in an ongoing fashion in hardware and every now and then it outputs a hash and corresponding signature. The chip is chaining hashes by incorporating the previous hash into the following hash, similar to how a public blockchain works. This on-chip blockchain allows us to prove that no data has been recorded between two blocks and by providing a genesis hash that corresponds to a public blockchain hash, it provides evidence that the data could not have been provided before the block time of that hash.
 
 ## installation
+If you have followed the instruction of installation on the root level, please skip this part.
 1. Install [node version manager (nvm)](https://github.com/nvm-sh/nvm)
 2. Install node version 15 
     ```
@@ -14,6 +15,8 @@ Chip records data e.g. 10s of data and calculates hash in an ongoing fashion in 
     ```
     nvm use
     ```
+    This command is always required when opening a new terminal window. 
+
 4. Install [yarn](https://yarnpkg.com/lang/en/docs/install/)
 5. Install packages 
     ```
@@ -29,14 +32,21 @@ Chip records data e.g. 10s of data and calculates hash in an ongoing fashion in 
     ```
     yarn build
     ```
+    Noted that any code changed in this folder needs to run this command to be effective.
 
 ## Use
 
+### Results
+Returned results are saved under the `result.txt` file. Except for `register`, results returned from all the other commands are appended in that file. `register` will overwrite the file.
+
+### Commands
 > <> denotes required parameters, [] denotes optional parameters.
+
 1. Registration (can be done while the chip is offline) 
 ```
 node dist/index register <devicekey> <userkey> [network] [relayerkey]
 ```
+The first blockhash to be signed is returned 
 
 2. Initialization / Startup
 ```

@@ -42,6 +42,7 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             },
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 const tx = await ctx.contract.connect(ctx.relayer).register({chip:ctx.chip, user:ctx.user});
+                ctx.hash = tx.hash;
                 task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
                 task.output = `Follow transaction status at ${explorerTx(ctx.provider, tx.hash)}`;
                 await ctx.provider.waitForTransaction(tx.hash, BLOCK_CONFIRMATION);
@@ -56,6 +57,6 @@ export const register = async (devicePubKey: string, userPubKey: string, network
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}`);
+    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}. See transaction status at ${explorerTx(ctx.provider, ctx.hash)}`);
     return ctx.uniqueId;
 }

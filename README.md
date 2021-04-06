@@ -3,17 +3,28 @@
 Collaboration project: PoC for Chain on a Chip.
 
 ## Structure
-There are two folders in this repo: `cli` is the command interface of the node application; `on-chain` is the smart contract.
+There are two folders in this repo: `cli` is for the command interface of the node application; `on-chain` contains source code of the smart contract.
 ### on-chain
-Contract can be deployed with `yarn deploy`. By default, it gets deployed to Kovan network.
+Contract can be deployed with `yarn deploy`. By default, it gets deployed to Sokol network.
 
 ### cli
 Please see the README file for more details.
 
 ## Installation
-1. At root level, run the following commands to install packages
+1. Install [node version manager (nvm)](https://github.com/nvm-sh/nvm)
+2. Install node version 15 
+    ```
+    nvm install 15.12.0
+    ```
+3. Use node of verion 15 
+    ```
+    nvm use
+    ```
+4. Install [yarn](https://yarnpkg.com/lang/en/docs/install/)
+5. At root level, run the following commands to install packages
 ```
 yarn install-all
+yarn env-all
 yarn build-all
 ```
 
@@ -23,10 +34,12 @@ yarn build-all
 2. In current terminal tab (A) and go to the `cli` folder
 ```
 cd cli
+nvm use
 ```
 3. Open another terminal tab (B) and go to the `on-chain` folder
 ```
 cd on-chain
+nvm use
 ```
 ### Register
 1. In terminal B, run 
@@ -53,7 +66,7 @@ Copy the blockhash
 #### First hash 
 1. In terminal B, run
 ```
-yarn demo-dumphash --chip 1 --user 2 --first true --address 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707 --chain 77
+yarn demo-dumphash --chip 1 --user 2 --first true --address 0x9A676e781A523b5d0C0e43731313A708CB607508 --chain 77
 ```
 where both indexes are exactly the same as in [Register](###Register).
 
@@ -66,7 +79,7 @@ node dist/index dumphash 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a
 #### Other hash 
 1. In terminal B, run
 ```
-yarn demo-dumphash --chip 1 --user 2 --first false --data "some test data here" --address 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707 --chain 77
+yarn demo-dumphash --chip 1 --user 2 --first false --data "some test data here" --address 0x9A676e781A523b5d0C0e43731313A708CB607508 --chain 77
 ```
 where both indexes are exactly the same as in [Register](###Register).
 You can replace the `"some test data here"` with whatever data you prefer.

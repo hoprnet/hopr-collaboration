@@ -11,7 +11,7 @@ export const BLOCK_CONFIRMATION = 3;
 
 // supported network
 export const SUPPORTED_NETWORK: {[key: string]: string} = {
-    "sokol": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+    "sokol": "0x9A676e781A523b5d0C0e43731313A708CB607508",
     "kovan": "0x93639eb65c0e78262f9f92291e8d885039c9de0a"
 };
 

@@ -82,25 +82,6 @@ task('demo-register', 'Display two sets of private and public keys for demo')
     console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index register ${chip.publicKey} ${user.publicKey}`);
 });
 
-// task('demo-dumphash', 'Dump signed block hash')
-//   .addParam('chip', 'Index of the HD wallet where chip keys are stored')
-//   .addParam('user', 'Index of the HD wallet whereuser keys are stored')
-//   .setAction(async (taskArgs, hre: HardhatRuntimeEnvironment) => {
-//     const [thirdParty] = await hre.ethers.getSigners();
-//     const thridPartyAddress = await thirdParty.getAddress();
-//     const chip = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.chip}`).privateKey);
-//     const user = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.user}`).privateKey);
-//     const hashes = (await fs.readFile('../cli/result.txt', "utf8")).split('\n');
-//     const prevHash = hashes[hashes.length-1];
-//     const chipSig = hre.ethers.utils.joinSignature(chip.signDigest(prevHash));
-//     const digest = hre.ethers.utils.keccak256(chipSig);
-//     const userSig = hre.ethers.utils.joinSignature(user.signDigest(digest));
-//     console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` Relayer `)} ${thridPartyAddress}`);
-//     console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   Chip  `)} PriKey: ${chip.privateKey} - PubKey: ${chip.publicKey}`);
-//     console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   User  `)} PriKey: ${user.privateKey} - PubKey: ${user.publicKey}`);
-//     console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index dumphash ${hashes[0]} ${prevHash} ${chipSig} ${userSig}`);
-// });
-
 task('demo-compute-and-sign-hash', 'Computes a non-first block hash with given data')
   .addParam('chip', 'Index of the HD wallet where chip keys are stored')
   .addParam('user', 'Index of the HD wallet whereuser keys are stored')
