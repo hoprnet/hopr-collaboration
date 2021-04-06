@@ -1,5 +1,5 @@
 {
-  "name": "@hoprnet/collaboration",
+  "name": "@hoprnet/collaboration-contract",
   "version": "0.1.0",
   "description": "PoC for Chain on a Chip",
   "main": "index.js",

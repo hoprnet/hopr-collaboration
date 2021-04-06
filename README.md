@@ -6,5 +6,16 @@ Collaboration project: PoC for Chain on a Chip.
 There are two folders in this repo: `cli` is the command interface of the node application; `on-chain` is the smart contract.
 ### on-chain
 Contract can be deployed with `yarn deploy`. By default, it gets deployed to Kovan network.
+
 ### cli
 Please see the README file for more details.
+
+## Demo
+```
+yarn install-all
+yarn build-all
+```
+```
+cd ./on-chain
+yarn demo-register --chip 1 --user 2
+```

@@ -74,6 +74,8 @@ task('demo-register', 'Display two sets of private and public keys for demo')
     const chip = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.chip}`).privateKey);
     const user = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.user}`).privateKey);
     console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` Relayer `)} ${thridPartyAddress}`);
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   Chip  `)} PriKey: ${chip.privateKey} - PubKey: ${chip.publicKey}`);
+    console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(`   User  `)} PriKey: ${user.privateKey} - PubKey: ${user.publicKey}`);
     console.log(`${chalk.hex('#00005f').bgHex('#ffffa0')(' Command ')} node dist/index register ${chip.publicKey} ${user.publicKey}`);
 });
 

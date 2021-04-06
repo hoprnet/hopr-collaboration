@@ -29,12 +29,23 @@ export const provider = (network: string, etherscanKey?: string, infuraKey?: str
     const etherscan = etherscanKey ?? process.env.ETHERSCAN_API_KEY;
     const infura = infuraKey ?? process.env.INFURA_PROJECT_ID;
     if (SUPPORTED_NETWORK.hasOwnProperty(network)) {
-        return network === "sokol" ? ethers.getDefaultProvider(network) : ethers.getDefaultProvider(network, {
+        return network === "kovan" ? ethers.getDefaultProvider(network, {
             etherscan,
             infura 
+        }) : new ethers.providers.JsonRpcProvider("https://sokol.poa.network", {
+          name: 'sokol',
+          chainId: 77
         });
+        // return new ethers.providers.JsonRpcProvider({url: "https://sokol.poa.network"}, {
+        //   name: 'sokol',
+        //   chainId: 77
+        // })
     }
     throw Error(`Network not supported. Please switch to ${Object.keys(SUPPORTED_NETWORK)}`);
+}
+
+export const explorer = (provider: ethers.providers.BaseProvider, txHash: string): string => {
+  return provider.network.name === 'sokol' ? `https://blockscout.com/poa/sokol/tx/${txHash}` : `https://${provider.network.name}.etherscan.io/tx/${txHash}`;
 }
 
 export const contract = (provider: ethers.providers.BaseProvider) => {

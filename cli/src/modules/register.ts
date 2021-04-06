@@ -1,6 +1,7 @@
 import Listr from 'listr';
+import chalk from 'chalk'
 import { constants, Signer, utils, Wallet } from "ethers";
-import { BLOCK_CONFIRMATION, contract, getUniqueDeviceId, provider } from "../web3/web3";
+import { BLOCK_CONFIRMATION, contract, explorer, getUniqueDeviceId, provider } from "../web3/web3";
 
 export const register = async (devicePubKey: string, userPubKey: string, network: string | undefined, signer: Signer | undefined): Promise<string> => {
     const tasks = new Listr([
@@ -9,7 +10,7 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             task: async (ctx) => {
                 let web3Provider;
                 try {
-                    web3Provider = provider(network ?? '');
+                    web3Provider = provider(network ?? 'kovan');
                 } catch {
                     console.warn('No provider specified. Using default network and provider.');
                     web3Provider = provider('kovan');
@@ -41,6 +42,8 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             },
             task: async (ctx: Listr.ListrContext) => {
                 const tx = await ctx.contract.connect(ctx.relayer).register({chip:ctx.chip, user:ctx.user});
+                console.log("hash", tx.Hash);
+                // console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` TxHash `)} ${explorer(ctx.provider, tx.hash)}`);
                 await ctx.provider.waitForTransaction(tx.hash, BLOCK_CONFIRMATION);
             }
         }

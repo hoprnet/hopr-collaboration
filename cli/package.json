@@ -1,5 +1,5 @@
 {
-  "name": "@hoprnet/hopr-collaboration",
+  "name": "@hoprnet/collaboration-cli",
   "version": "1.0.0",
   "description": "CLI for HOPR collaborative project Chain on a Chip",
   "main": "./bin/index.js",
