@@ -36,10 +36,6 @@ export const provider = (network: string, etherscanKey?: string, infuraKey?: str
           name: 'sokol',
           chainId: 77
         });
-        // return new ethers.providers.JsonRpcProvider({url: "https://sokol.poa.network"}, {
-        //   name: 'sokol',
-        //   chainId: 77
-        // })
     }
     throw Error(`Network not supported. Please switch to ${Object.keys(SUPPORTED_NETWORK)}`);
 }

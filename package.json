@@ -1,0 +1,8 @@
+{
+  "name": "@hoprnet/hopr-collaboration",
+  "private": true,
+  "scripts": {
+    "install-all": "cd ./cli && yarn cd ../on-chain && yarn && cd ..",
+    "build-all": "cd ./cli && yarn build"
+  }
+}

@@ -1,5 +1,5 @@
 import Listr from 'listr';
-import chalk from 'chalk'
+import { promises as fs } from 'fs';
 import { constants, Signer, utils, Wallet } from "ethers";
 import { BLOCK_CONFIRMATION, contract, explorer, getUniqueDeviceId, provider } from "../web3/web3";
 
@@ -10,10 +10,10 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             task: async (ctx) => {
                 let web3Provider;
                 try {
-                    web3Provider = provider(network ?? 'kovan');
+                    web3Provider = provider(network ?? 'sokol');
                 } catch {
                     console.warn('No provider specified. Using default network and provider.');
-                    web3Provider = provider('kovan');
+                    web3Provider = provider('sokol');
                 }
                 const relayer = signer ?? new Wallet(process.env.LOCAL_RELAYER_PRIVATE_KEY as string, web3Provider);
                 const registerContract = contract(web3Provider); 
@@ -40,11 +40,17 @@ export const register = async (devicePubKey: string, userPubKey: string, network
                 console.log(`Device/user pair is registered.`);
                 return registered.chip !== constants.AddressZero;
             },
-            task: async (ctx: Listr.ListrContext) => {
+            task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 const tx = await ctx.contract.connect(ctx.relayer).register({chip:ctx.chip, user:ctx.user});
-                console.log("hash", tx.Hash);
-                // console.log(`${chalk.hex('#ffffa0').bgHex('#00005f')(` TxHash `)} ${explorer(ctx.provider, tx.hash)}`);
+                task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
+                task.output = `Follow transaction status at ${explorer(ctx.provider, tx.hash)}`;
                 await ctx.provider.waitForTransaction(tx.hash, BLOCK_CONFIRMATION);
+            }
+        },
+        {
+            title: 'Save to local result.txt',
+            task: async (ctx: Listr.ListrContext) => {
+                await fs.writeFile('./result.txt', ctx.uniqueId, 'utf8');
             }
         }
     ]);

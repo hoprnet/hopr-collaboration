@@ -24,8 +24,8 @@ describe('ChainOnAChip', function () {
     const reset = async () => {
         [thirdParty] = await ethers.getSigners();
         thridPartyAddress = await thirdParty.getAddress();
-        chip = getPrivateKeyFromLocalSigners(10);
-        user = getPrivateKeyFromLocalSigners(11);
+        chip = getPrivateKeyFromLocalSigners(7);
+        user = getPrivateKeyFromLocalSigners(8);
         ethereumContract = await deployContract(thirdParty, "ChainOnAChip", null);
         chipAddress = computeAddress(chip.privateKey);
         userAddress = computeAddress(user.privateKey);
@@ -128,7 +128,7 @@ describe('ChainOnAChip', function () {
    
         it('test sign', async function () {
             const prevHash = "0x6d98a0ec8faac714aa8b754e10bb9309f38333f34ad8565a7cf812986a3f3468";
-            const toBeSigned = "0x4f43e8c820aaa9b6c3a56e01721a4b51a6386f1db2350cb7d2933bd184a13cbd";
+            const toBeSigned = "0xc33b29d3e9bcbb6c1b68111bf4be6d7458631edee3fc748bb9c064040c0258b4";
             const chipSig = utils.joinSignature(chip.signDigest(toBeSigned));
             const digest = utils.keccak256(chipSig);
             const userSig = utils.joinSignature(user.signDigest(digest));
