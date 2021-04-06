@@ -1,6 +1,7 @@
 import Listr from 'listr';
+import { promises as fs } from 'fs';
 import { Signer, Wallet } from "ethers";
-import { getData, contract, provider } from "../web3/web3";
+import { getData, contract, provider, explorerBlock } from "../web3/web3";
 
 export const startup = async (network: string | undefined, signer: Signer | undefined): Promise<[string, string]> => {
     const tasks = new Listr([
@@ -12,7 +13,7 @@ export const startup = async (network: string | undefined, signer: Signer | unde
                     web3Provider = provider(network ?? '');
                 } catch {
                     console.warn('No provider specified. Using default network and provider.');
-                    web3Provider = provider('kovan');
+                    web3Provider = provider('sokol');
                 }
                 const relayer = signer ?? new Wallet(process.env.LOCAL_RELAYER_PRIVATE_KEY as string, web3Provider);
                 const registerContract = contract(web3Provider); 
@@ -26,6 +27,7 @@ export const startup = async (network: string | undefined, signer: Signer | unde
             task: async (ctx: Listr.ListrContext) => {
               const latestBlockNumber = await ctx.provider.getBlockNumber();
               const latestBlock = await ctx.provider.getBlock(latestBlockNumber);
+              ctx.blockNumber = latestBlockNumber;
               ctx.blockHash = latestBlock.hash;
             }
         },
@@ -35,10 +37,17 @@ export const startup = async (network: string | undefined, signer: Signer | unde
               const typedData0 = {isFirstBlock: true, previousHash: ctx.blockHash, data: ""};
               ctx.hash0 = await getData(ctx.contract, typedData0);
             }
+        },
+        {
+            title: 'Save to local result.txt',
+            task: async (ctx: Listr.ListrContext) => {
+                await fs.writeFile('./result.txt', ctx.blockHash, 'utf8');
+                await fs.appendFile('./result.txt', "\n"+ctx.hash0, 'utf8');
+            }
         }
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Latest Ethereum block hash ${ctx.blockHash} and hash0 to be signed ${ctx.hash0}`);
+    console.log(`Latest on-chain block hash ${ctx.blockHash}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)} \n hash0 to be signed ${ctx.hash0}`);
     return [ctx.blockHash, ctx.hash0];
 }

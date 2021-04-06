@@ -40,8 +40,11 @@ export const provider = (network: string, etherscanKey?: string, infuraKey?: str
     throw Error(`Network not supported. Please switch to ${Object.keys(SUPPORTED_NETWORK)}`);
 }
 
-export const explorer = (provider: ethers.providers.BaseProvider, txHash: string): string => {
+export const explorerTx = (provider: ethers.providers.BaseProvider, txHash: string): string => {
   return provider.network.name === 'sokol' ? `https://blockscout.com/poa/sokol/tx/${txHash}` : `https://${provider.network.name}.etherscan.io/tx/${txHash}`;
+}
+export const explorerBlock = (provider: ethers.providers.BaseProvider, blockNumber: number): string => {
+  return provider.network.name === 'sokol' ? `https://blockscout.com/poa/sokol/blocks/${blockNumber}` : `https://${provider.network.name}.etherscan.io/block/${blockNumber}`;
 }
 
 export const contract = (provider: ethers.providers.BaseProvider) => {

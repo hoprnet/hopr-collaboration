@@ -1,7 +1,7 @@
 import Listr from 'listr';
 import { promises as fs } from 'fs';
 import { constants, Signer, utils, Wallet } from "ethers";
-import { BLOCK_CONFIRMATION, contract, explorer, getUniqueDeviceId, provider } from "../web3/web3";
+import { BLOCK_CONFIRMATION, contract, explorerTx, getUniqueDeviceId, provider } from "../web3/web3";
 
 export const register = async (devicePubKey: string, userPubKey: string, network: string | undefined, signer: Signer | undefined): Promise<string> => {
     const tasks = new Listr([
@@ -10,7 +10,7 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             task: async (ctx) => {
                 let web3Provider;
                 try {
-                    web3Provider = provider(network ?? 'sokol');
+                    web3Provider = provider(network ?? '');
                 } catch {
                     console.warn('No provider specified. Using default network and provider.');
                     web3Provider = provider('sokol');
@@ -43,7 +43,7 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 const tx = await ctx.contract.connect(ctx.relayer).register({chip:ctx.chip, user:ctx.user});
                 task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
-                task.output = `Follow transaction status at ${explorer(ctx.provider, tx.hash)}`;
+                task.output = `Follow transaction status at ${explorerTx(ctx.provider, tx.hash)}`;
                 await ctx.provider.waitForTransaction(tx.hash, BLOCK_CONFIRMATION);
             }
         },
