@@ -11,6 +11,7 @@ Contract can be deployed with `yarn deploy`. By default, it gets deployed to Sok
 Please see the README file for more details.
 
 ## Installation
+0. [Clone](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) this GitHub repo to your local machine. 
 1. Install [node version manager (nvm)](https://github.com/nvm-sh/nvm)
 2. Install node version 15 
     ```
