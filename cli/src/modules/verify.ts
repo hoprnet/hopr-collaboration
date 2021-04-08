@@ -1,4 +1,5 @@
 import Listr from 'listr';
+import { promises as fs } from 'fs';
 import { constants, Signer, Wallet } from "ethers";
 import { contract, provider } from "../web3/web3";
 
@@ -45,6 +46,12 @@ export const verify = async (
                     console.log(error)
                     task.skip(JSON.stringify(error));
                 }
+            }
+        },
+        {
+            title: 'Save to local',
+            task: async (ctx: Listr.ListrContext) => {
+                await fs.writeFile('./result.txt', ctx.result, 'utf8');
             }
         }
     ]);

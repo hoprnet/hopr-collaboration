@@ -49,7 +49,8 @@ export const dumpHash = async (
         {
             title: 'Save dumped hash to local result.txt',
             task: async () => {
-                await fs.appendFile('./result.txt', "\n"+hash, 'utf8');
+                await fs.writeFile('./result.txt', hash, 'utf8');
+                await fs.appendFile('./chain.txt', "\n"+hash, 'utf8');
             }
         }
     ]);

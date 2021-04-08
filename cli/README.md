@@ -37,7 +37,9 @@ If you have followed the instruction of installation on the root level, please s
 ## Use
 
 ### Results
-Returned results are saved under the `result.txt` file. Except for `register`, results returned from all the other commands are appended in that file. `register` will overwrite the file.
+Returned results are saved under two files: `chain.txt` and `result.txt` file. 
+- `result.txt` saves the result returned from current command. 
+- `chain.txt` appends all the results (in bytes32) since the last `register` command. `register` will overwrite the file.
 
 ### Commands
 > <> denotes required parameters, [] denotes optional parameters.

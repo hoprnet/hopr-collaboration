@@ -1,7 +1,7 @@
 import Listr from 'listr';
 import { promises as fs } from 'fs';
 import { Signer, Wallet } from "ethers";
-import { contract, provider, explorerBlock } from "../web3/web3";
+import { getData, contract, provider, explorerBlock } from "../web3/web3";
 
 export const startup = async (network: string | undefined, signer: Signer | undefined): Promise<[string, string]> => {
     const tasks = new Listr([
@@ -32,9 +32,17 @@ export const startup = async (network: string | undefined, signer: Signer | unde
             }
         },
         {
-            title: 'Save to local result.txt',
+            title: 'Compute hash 0',
             task: async (ctx: Listr.ListrContext) => {
-                await fs.appendFile('./result.txt', "\n"+ctx.blockHash, 'utf8');
+              const typedData0 = {isFirstBlock: true, previousHash: ctx.blockHash, data: ""};
+              ctx.hash0 = await getData(ctx.contract, typedData0);
+            }
+        },
+        {
+            title: 'Save to local',
+            task: async (ctx: Listr.ListrContext) => {
+                await fs.appendFile('./chain.txt', "\n"+ctx.blockHash, 'utf8');
+                await fs.writeFile('./result.txt', ctx.hash0, 'utf8');
             }
         }
     ]);
