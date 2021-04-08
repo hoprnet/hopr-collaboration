@@ -2,7 +2,7 @@
   "name": "@hoprnet/hopr-collaboration",
   "private": true,
   "scripts": {
-    "install-all": "cd ./cli && yarn cd ../on-chain && yarn && cd ..",
+    "install-all": "cd ./cli && yarn && cd ../on-chain && yarn && cd ..",
     "env-all": "cp ./cli/.env.example ./cli/.env && cp ./on-chain/.env.example ./on-chain/.env",
     "build-all": "cd ./cli && yarn build"
   }

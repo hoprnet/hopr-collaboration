@@ -49,14 +49,15 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             }
         },
         {
-            title: 'Save to local result.txt',
+            title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
+                await fs.writeFile('./chain.txt', ctx.uniqueId, 'utf8');
                 await fs.writeFile('./result.txt', ctx.uniqueId, 'utf8');
             }
         }
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}. See transaction status at ${explorerTx(ctx.provider, ctx.hash)}`);
+    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}. ${!ctx.hash ? '': `See transaction status at ${explorerTx(ctx.provider, ctx.hash)}`}`);
     return ctx.uniqueId;
 }

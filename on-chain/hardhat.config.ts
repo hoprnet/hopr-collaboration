@@ -94,7 +94,7 @@ task('demo-compute-and-sign-hash', 'Computes a non-first block hash with given d
     const thridPartyAddress = await thirdParty.getAddress();
     const chip = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.chip}`).privateKey);
     const user = new hre.ethers.utils.SigningKey(hre.ethers.Wallet.fromMnemonic((hre.network.config.accounts as any).mnemonic, `m/44'/60'/0'/0/${taskArgs.user}`).privateKey);
-    const hashes = (await fs.readFile('../cli/result.txt', "utf8")).split('\n');
+    const hashes = (await fs.readFile('../cli/chain.txt', "utf8")).split('\n');
     const prevHash = hashes[hashes.length-1];
     const typed = {isFirstBlock: taskArgs.first, previousHash: prevHash, data: taskArgs.first ? "" : taskArgs.data};
     const hash = await getDataLocalRpc(taskArgs.address, taskArgs.chain, typed);
@@ -116,7 +116,7 @@ task('demo-verify-hash', 'Outputs command for verifying a hash')
   .setAction(async (taskArgs, hre: HardhatRuntimeEnvironment) => {
     const [thirdParty] = await hre.ethers.getSigners();
     const thridPartyAddress = await thirdParty.getAddress();
-    const hashes = (await fs.readFile('../cli/result.txt', "utf8")).split('\n');
+    const hashes = (await fs.readFile('../cli/chain.txt', "utf8")).split('\n');
     const prevHash = hashes[taskArgs.index];
     console.log(taskArgs.data);
     const data = taskArgs.data ? `"${taskArgs.data}"` : `""`;
