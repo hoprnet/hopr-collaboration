@@ -41,6 +41,7 @@ export const dumpHash = async (
                 task.title = 'Dump signed hash to Ethereum smart contract';
                 // dump hash
                 const tx = await ctx.contract.connect(ctx.relayer).dumpHash(uniqueId, hash, chipSig, userSig);
+                ctx.txHash = tx.hash;
                 task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
                 task.output = `Follow transaction status at ${explorerTx(ctx.provider, tx.hash)}`;
                 receipt = await ctx.provider.waitForTransaction(tx.hash, BLOCK_CONFIRMATION);
@@ -48,14 +49,14 @@ export const dumpHash = async (
         },
         {
             title: 'Save dumped hash to local result.txt',
-            task: async () => {
-                await fs.writeFile('./result.txt', hash, 'utf8');
+            task: async (ctx: Listr.ListrContext) => {
+                await fs.writeFile('./result.txt', ctx.txHash, 'utf8');
                 await fs.appendFile('./chain.txt', "\n"+hash, 'utf8');
             }
         }
     ]);
 
     const ctx = await tasks.run();
-    if (receipt) console.log(`Hash ${hash} is dumped to smart contract under ID ${uniqueId}`);
+    if (receipt) console.log(`Hash ${hash} is dumped to smart contract under ID ${uniqueId} with transaction ${ctx.txHash}`);
     return ctx.uniqueId;
 }
