@@ -43,7 +43,6 @@ export const verify = async (
                     const typedData: {isFirstBlock: boolean; previousHash: string; data: string} = {isFirstBlock: isfirstblock, previousHash: prevhash, data};
                     ctx.result = await ctx.contract.connect(ctx.relayer).verify(uniqueId, typedData);
                 } catch (error) {
-                    console.log(error)
                     task.skip(JSON.stringify(error));
                 }
             }
@@ -51,7 +50,7 @@ export const verify = async (
         {
             title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
-                await fs.writeFile('./result.txt', ctx.result, 'utf8');
+                await fs.writeFile('./result.txt', ctx.result.toString(), 'utf8');
             }
         }
     ]);
