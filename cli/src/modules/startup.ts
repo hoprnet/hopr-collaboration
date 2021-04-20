@@ -2,7 +2,10 @@ import Listr from 'listr';
 import { promises as fs } from 'fs';
 import { Signer, Wallet } from "ethers";
 import { getData, contract, provider, explorerBlock } from "../web3/web3";
+import hexToBinary from "hex-to-binary";
 
+const RESULTS_FOLDER = './results/';
+const RESULTS_SAVE_TO = `${RESULTS_FOLDER}startup_prevhash`;
 export const startup = async (network: string | undefined, signer: Signer | undefined): Promise<[string, string]> => {
     const tasks = new Listr([
         {
@@ -41,13 +44,14 @@ export const startup = async (network: string | undefined, signer: Signer | unde
         {
             title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
-                await fs.appendFile('./chain.txt', "\n"+ctx.blockHash, 'utf8');
-                await fs.writeFile('./result.txt', ctx.hash0, 'utf8');
+                await fs.appendFile(`${RESULTS_FOLDER}chain.txt`, "\n"+ctx.blockHash, 'utf8');
+                await fs.writeFile(`${RESULTS_SAVE_TO}_hex.txt`, ctx.hash0.slice(2), 'utf8');
+                await fs.writeFile(`${RESULTS_SAVE_TO}_bin.txt`, hexToBinary(ctx.hash0.slice(2)), 'utf8');
             }
         }
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Latest on-chain block hash ${ctx.blockHash}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)}`);
+    console.log(`Latest on-chain block hash ${ctx.blockHash}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)}. Results are saved in ${RESULTS_SAVE_TO}.txt`);
     return [ctx.blockHash, ctx.hash0];
 }
