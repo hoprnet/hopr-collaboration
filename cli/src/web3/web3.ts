@@ -11,12 +11,12 @@ export const BLOCK_CONFIRMATION = 3;
 
 // supported network
 export const SUPPORTED_NETWORK: {[key: string]: string} = {
-    "sokol": "0x9A676e781A523b5d0C0e43731313A708CB607508",
+    "sokol": "0x3347B4d90ebe72BeFb30444C9966B2B990aE9FcB",
     "kovan": "0x93639eb65c0e78262f9f92291e8d885039c9de0a"
 };
 
 export const DEVICE_TYPEHASH = keccak256(
-    toUtf8Bytes('Device(address,address)')
+    toUtf8Bytes('Device(bytes,bytes)')
 );
 export const DATA_TYPEHASH = keccak256(
   toUtf8Bytes('Data(bool,bytes32,string)')
@@ -69,7 +69,7 @@ export async function getUniqueDeviceId(
           DOMAIN_SEPARATOR,
           keccak256(
             defaultAbiCoder.encode(
-              ['bytes32', 'address', 'address'],
+              ['bytes32', 'bytes', 'bytes'],
               [DEVICE_TYPEHASH, device.chip, device.user]
             )
           )

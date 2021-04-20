@@ -1,9 +1,9 @@
 import { ethers, network } from 'hardhat'
-import { constants, Contract, Signer, utils } from 'ethers'
+import { Contract, Signer, utils } from 'ethers'
 import { deployContract } from "../utils/contracts";
 import{ expect } from "chai";
 import { it } from 'mocha';
-import { computeAddress, SigningKey } from 'ethers/lib/utils';
+import { SigningKey } from 'ethers/lib/utils';
 import { getData, getUniqueDeviceId } from '../utils/digest';
 
 describe('ChainOnAChip', function () {
@@ -12,8 +12,8 @@ describe('ChainOnAChip', function () {
     let user: SigningKey;
     let ethereumContract: Contract;
     let thridPartyAddress: string;
-    let chipAddress: string;
-    let userAddress: string;
+    // let chipPublicKey: string;
+    // let userPublicKey: string;
     let uniqueDeviceId: string;
   
     const getPrivateKeyFromLocalSigners = (index): SigningKey => {
@@ -27,16 +27,16 @@ describe('ChainOnAChip', function () {
         chip = getPrivateKeyFromLocalSigners(7);
         user = getPrivateKeyFromLocalSigners(8);
         ethereumContract = await deployContract(thirdParty, "ChainOnAChip", null);
-        chipAddress = computeAddress(chip.privateKey);
-        userAddress = computeAddress(user.privateKey);
-        uniqueDeviceId = await ethereumContract.connect(thirdParty).uniqueDeviceIdOf({chip:chipAddress, user:userAddress});
+        // chipAddress = computeAddress(chip.privateKey);
+        // userAddress = computeAddress(user.privateKey);
+        uniqueDeviceId = await ethereumContract.connect(thirdParty).uniqueDeviceIdOf({chip:chip.publicKey, user:user.publicKey});
 
         // -----logs
         console.table([
-            ["Chip", chipAddress, chip.privateKey, chip.publicKey],
-            ["User", userAddress, user.privateKey, user.publicKey],
+            ["Chip", chip.privateKey, chip.publicKey],
+            ["User", user.privateKey, user.publicKey],
             ["On-chain contract", ethereumContract.address],
-            ["Third party", thridPartyAddress, getPrivateKeyFromLocalSigners(0).privateKey],
+            ["Third party", getPrivateKeyFromLocalSigners(0).privateKey, thridPartyAddress],
             ["Unique device ID", uniqueDeviceId],
         ]);
     }
@@ -51,20 +51,23 @@ describe('ChainOnAChip', function () {
         })
 
         it('computes the right hash', async function () {
-            const uniqueDeviceIdComputedOffchain = await getUniqueDeviceId(ethereumContract, {chip:chipAddress, user:userAddress});
+            const uniqueDeviceIdComputedOffchain = await getUniqueDeviceId(ethereumContract, {chip:chip.publicKey, user:user.publicKey});
             expect(uniqueDeviceId).to.equal(uniqueDeviceIdComputedOffchain);
         })
 
         it('has no device registered', async function () {
             const registered = await ethereumContract.connect(thirdParty).deviceRegistration(uniqueDeviceId);
-            expect(registered.user).to.equal(constants.AddressZero);
+            expect(registered.user).to.equal("0x");
         })
 
         it('registers a device', async function () {
-            await ethereumContract.connect(thirdParty).register({chip:chipAddress, user:userAddress});
+            const tx = await ethereumContract.connect(thirdParty).register({chip:chip.publicKey, user:user.publicKey});
+            console.log(await ethereumContract.provider.getTransactionReceipt(tx.hash));
+
             const registered = await ethereumContract.connect(thirdParty).deviceRegistration(uniqueDeviceId);
-            expect(registered.user).to.equal(userAddress);
-            expect(registered.chip).to.equal(chipAddress);
+            console.log(registered)
+            expect(registered.user).to.equal(user.publicKey);
+            expect(registered.chip).to.equal(chip.publicKey);
         })
 
         it('startup get latest block', async function () {
@@ -117,29 +120,21 @@ describe('ChainOnAChip', function () {
             expect(await ethereumContract.userSignature(chipChainHash[currentIndex])).to.equal(userSig);
 
         })
-        
-        it('verifies [0]', async function () {
-            expect(await ethereumContract.verify(uniqueDeviceId, typedData[0])).to.equal(true);
-        })
-
-        it('verifies [1]', async function () {
-            expect(await ethereumContract.verify(uniqueDeviceId, typedData[1])).to.equal(true);
-        })
    
-        it('test sign', async function () {
-            const prevHash = "0x6d98a0ec8faac714aa8b754e10bb9309f38333f34ad8565a7cf812986a3f3468";
-            const toBeSigned = "0xc33b29d3e9bcbb6c1b68111bf4be6d7458631edee3fc748bb9c064040c0258b4";
-            const chipSig = utils.joinSignature(chip.signDigest(toBeSigned));
-            const digest = utils.keccak256(chipSig);
-            const userSig = utils.joinSignature(user.signDigest(digest));
-            console.table([
-                ["prevHash", prevHash],
-                ["toBeSigned", toBeSigned],
-                ["chipSig", chipSig],
-                ["digest", digest],
-                ["userSig", userSig],
-            ])
-        })
+        // it('test sign', async function () {
+        //     const prevHash = "0x6d98a0ec8faac714aa8b754e10bb9309f38333f34ad8565a7cf812986a3f3468";
+        //     const toBeSigned = "0xc33b29d3e9bcbb6c1b68111bf4be6d7458631edee3fc748bb9c064040c0258b4";
+        //     const chipSig = utils.joinSignature(chip.signDigest(toBeSigned));
+        //     const digest = utils.keccak256(chipSig);
+        //     const userSig = utils.joinSignature(user.signDigest(digest));
+        //     console.table([
+        //         ["prevHash", prevHash],
+        //         ["toBeSigned", toBeSigned],
+        //         ["chipSig", chipSig],
+        //         ["digest", digest],
+        //         ["userSig", userSig],
+        //     ])
+        // })
 
     })
   })

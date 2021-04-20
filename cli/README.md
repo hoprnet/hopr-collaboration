@@ -40,6 +40,7 @@ If you have followed the instruction of installation on the root level, please s
 Returned results are saved in the `results` folder.
 - results are always appended to `chain.txt`. 
 - `startup_prevhash.txt` stores the initial block hash at startup. 
+- `registration_UniqueID.txt` stores the unique ID of the user-chip pair.
 
 ### Commands
 > <> denotes required parameters, [] denotes optional parameters.

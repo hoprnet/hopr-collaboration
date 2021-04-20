@@ -3,7 +3,7 @@ import { Contract, utils } from "ethers";
 const {keccak256, defaultAbiCoder, toUtf8Bytes, solidityPack} = utils;
 
 export const DEVICE_TYPEHASH = keccak256(
-    toUtf8Bytes('Device(address,address)')
+    toUtf8Bytes('Device(bytes,bytes)')
 );
 export const DATA_TYPEHASH = keccak256(
     toUtf8Bytes('Data(bool,bytes32,string)')
@@ -45,7 +45,7 @@ export async function getUniqueDeviceId(
           DOMAIN_SEPARATOR,
           keccak256(
             defaultAbiCoder.encode(
-              ['bytes32', 'address', 'address'],
+              ['bytes32', 'bytes', 'bytes'],
               [DEVICE_TYPEHASH, device.chip, device.user]
             )
           )
