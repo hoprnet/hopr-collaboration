@@ -149,3 +149,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+
+demo/**
+#!demo/**/
+!demo/**/.gitkeep
+results/**
+#!results/**/
+!results/**/.gitkeep

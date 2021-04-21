@@ -72,7 +72,6 @@ export const demoCreateKeys = async (): Promise<string> => {
     ]);
 
     const ctx = await tasks.run();
-    console.log(ctx.agg);
     console.log(`Created keys for demo. Results are saved in ${RESULTS_FOLDER} folder`);
     return ctx.uniqueId;
 }
