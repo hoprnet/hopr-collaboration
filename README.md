@@ -42,26 +42,36 @@ nvm use
 cd on-chain
 nvm use
 ```
+
+### Create a demo key pair
+```
+node dist/index demo-create-keys -m true
+```
+If you want to automatically "register" (next step) the created demo key pairs without runnign an additional command, run 
+```
+node dist/index demo-create-keys -m false
+```
+
+Key pairs are saved in `demo` folder.
+
+
 ### Register
-1. In terminal B, run 
 ```
-yarn demo-register --chip 1 --user 2
+node dist/index register <k1 (chip key)> <k2 (user key)>
 ```
-where `1` and `2` stands for the index of public keys given by the test setup. 
 
-2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
-`node dist/index register 0x04ba5734d8f7091719471e7f7ed6b9df170dc70cc661ca05e688601ad984f068b0d67351e5f06073092499336ab0839ef8a521afd334e53807205fa2f08eec74f4 0x049d9031e97dd78ff8c15aa86939de9b1e791066a0224e331bc962a2099a7b1f0464b8bbafe1535f2301c72c2cb3535b172da30b02686ab0393d348614f157fbdb`
-
-The returned unique ID is saved in the `result.txt` file.
+The returned unique ID is saved in the `results/registration_UniqueID.txt` file.
 
 ### Startup
-1. In terminal A, run
 ```
 node dist/index startup
 ```
-It returns the latest on chain block hash, which will be used as `prevHash` of the fistblock. This hash is appended as the second line in the result.txt` file. 
+It returns the latest on chain block hash, which will be saved in `results/startup_prevhash_hex.txt`. The CLI will hash the blockhash with `sha256(startup_prevhash_hex)` to compute the digest so that chip/user can directly sign the digest. Digest is saved in binary formate in `results/startup_inithash_to_sign_bin.txt` 
 
-Copy the blockhash
+### Window 1 - Mock signing by chip and user (mock S1, S2)
+_This step can be skipped when performing an integration test, where signing is done by the Chip. If no chip is available, CLI can mock the signing process._
+
+In window 1, CoT should sign the initial hash obtained from the Ethereum blockchain.
 
 ### Runtime - dump hash
 #### First hash 
