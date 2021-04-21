@@ -8,6 +8,7 @@ import { startup } from './modules/startup';
 import { dumpHash } from './modules/dumpHash';
 import { verify } from './modules/verify';
 import { demoCreateKeys } from './modules/demoCreateKeys';
+import { demoSignWindow1 } from './modules/demoSignWindow1';
 
 clear();
 console.log(
@@ -24,10 +25,17 @@ const cli = async () => {
   // yarn dev demo-create-keys
   program
     .command('demo-create-keys [manual]')
-    .description('Createa a pair of RSA keys for demo')
+    .description('Create a pair of RSA keys for demo')
     .option('-m, --manualregister', 'seperate register process')
     .action(async (options) => {
       await demoCreateKeys(options.manualregister);
+    })
+  // yarn dev demo-create-keys
+  program
+    .command('demo-sign-window1')
+    .description('Mock signing by the chip for window 1')
+    .action(async () => {
+      await demoSignWindow1();
     })
 
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a

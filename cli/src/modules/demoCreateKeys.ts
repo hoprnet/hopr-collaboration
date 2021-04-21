@@ -1,10 +1,9 @@
 import Listr from 'listr';
 import execa from 'execa';
 import { promises as fs } from 'fs';
-import { generateKeyPair, sign, verify, createPrivateKey, createPublicKey } from 'crypto';
+import { generateKeyPair } from 'crypto';
 
 const RESULTS_FOLDER = './demo/';
-const verifiableData = "this need to be verified"
 const PREFIX = '30818902818100';
 const APPENDIX = '0203010001';
 
@@ -85,24 +84,6 @@ export const demoCreateKeys = async (manualregister: boolean): Promise<string> =
                         return cmd;
                     }
                 })
-            }
-        },
-        {
-            title: 'Test Sign',
-            task: async (ctx: Listr.ListrContext) => {
-                const privateKey = await fs.readFile(`${RESULTS_FOLDER}demo_key.pri`, "utf8");
-                const signature = sign("sha256", Buffer.from(verifiableData), createPrivateKey({key: privateKey, format: 'pem', type: 'pkcs1'}));
-                ctx.signature = signature.toString("hex")
-            }
-        },
-        {
-            title: 'Test Verify',
-            task: async (ctx: Listr.ListrContext) => {
-                const publicKey = await fs.readFile(`${RESULTS_FOLDER}demo_key.pub`, "utf8");
-                const isVerified = verify("sha256", Buffer.from(verifiableData), createPublicKey({key: publicKey, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature, 'hex'));
-
-                ctx.verified = isVerified;
-                console.log("signature verified: ", isVerified)
             }
         }
     ]);
