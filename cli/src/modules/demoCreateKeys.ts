@@ -140,6 +140,7 @@ export const demoCreateKeys = async (): Promise<string> => {
     // console.log(ctx.testVerified22);
     console.log(ctx.testVerified2);
     console.log(ctx.isVerified);
+    console.log(ctx.digest);
     console.log(`Created keys for demo. Results are saved in ${RESULTS_FOLDER} folder`);
     return ctx.uniqueId;
 }
