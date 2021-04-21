@@ -1,7 +1,7 @@
 import Listr from 'listr';
 import { promises as fs } from 'fs';
 import { Signer, Wallet } from "ethers";
-import { getData, contract, provider, explorerBlock } from "../web3/web3";
+import { contract, provider, explorerBlock } from "../web3/web3";
 import hexToBinary from "hex-to-binary";
 import { createHash } from 'crypto';
 
@@ -32,29 +32,20 @@ export const startup = async (network: string | undefined, signer: Signer | unde
               const latestBlockNumber = await ctx.provider.getBlockNumber();
               const latestBlock = await ctx.provider.getBlock(latestBlockNumber);
               ctx.blockNumber = latestBlockNumber;
-              ctx.blockHash = latestBlock.hash;
-            }
-        },
-        {
-            title: 'Compute hash 0',
-            task: async (ctx: Listr.ListrContext) => {
-              const typedData0 = {isFirstBlock: true, previousHash: ctx.blockHash, data: ""};
-              ctx.hash0 = await getData(ctx.contract, typedData0);
+              ctx.blockHash = latestBlock.hash.slice(2);
             }
         },
         {
             title: 'Compute digest of hash 0',
             task: async (ctx: Listr.ListrContext) => {
-              const typedData0 = {isFirstBlock: true, previousHash: ctx.blockHash, data: ""};
-              ctx.hash0 = (await getData(ctx.contract, typedData0)).slice(2);
-              ctx.digest = createHash('sha256').update(ctx.hash0).digest('hex');
+              ctx.digest = createHash('sha256').update(ctx.blockHash).digest('hex');
             }
         },
         {
             title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
-                await fs.appendFile(`${RESULTS_FOLDER}chain.txt`, "\n"+ctx.blockHash, 'utf8');
-                await fs.writeFile(`${RESULTS_FOLDER}startup_prevhash_hex.txt`, ctx.hash0, 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}chain.txt`, ctx.blockHash, 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}startup_prevhash_hex.txt`, ctx.blockHash, 'utf8');
                 await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_to_sign_bin.txt`, hexToBinary(ctx.digest), 'utf8');
             }
         }

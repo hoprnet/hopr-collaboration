@@ -154,6 +154,7 @@ dist
 demo/**
 #!demo/**/
 !demo/**/.gitkeep
+!demo/data_hex.txt
 results/**
 #!results/**/
 !results/**/.gitkeep

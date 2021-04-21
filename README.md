@@ -30,18 +30,6 @@ yarn build-all
 ```
 
 ## Demo
-### Setup
-1. Follow [Installation](##Installation)
-2. In current terminal tab (A) and go to the `cli` folder
-```
-cd cli
-nvm use
-```
-3. Open another terminal tab (B) and go to the `on-chain` folder
-```
-cd on-chain
-nvm use
-```
 
 ### Create a demo key pair
 ```
@@ -59,6 +47,7 @@ Key pairs are saved in `demo` folder.
 ```
 node dist/index register <k1 (chip key)> <k2 (user key)>
 ```
+If `node dist/index demo-create-keys -m true` was run in the previous step, copy the command line in the console and run it. 
 
 The returned unique ID is saved in the `results/registration_UniqueID.txt` file.
 
@@ -68,24 +57,36 @@ node dist/index startup
 ```
 It returns the latest on chain block hash, which will be saved in `results/startup_prevhash_hex.txt`. The CLI will hash the blockhash with `sha256(startup_prevhash_hex)` to compute the digest so that chip/user can directly sign the digest. Digest is saved in binary formate in `results/startup_inithash_to_sign_bin.txt` 
 
-### Window 1 - Mock signing by chip and user (mock S1, S2)
+### Runtime
+
+#### Window 1 - Mock signing by chip and user (mock S1, S2)
 _This step can be skipped when performing an integration test, where signing is done by the Chip. If no chip is available, CLI can mock the signing process._
 
 In window 1, CoT should sign the initial hash obtained from the Ethereum blockchain.
-
-### Runtime - dump hash
-#### First hash 
-1. In terminal B, run
 ```
-yarn demo-dumphash --chip 1 --user 2 --first true --address 0x9A676e781A523b5d0C0e43731313A708CB607508 --chain 77
+node dist/index demo-sign-window1
 ```
-where both indexes are exactly the same as in [Register](###Register).
-
-This test command will automatically pull the block hash returned from blockchain at step [Startup](###Startup) from the `result.txt` file as the `previousHash` to construct the data that will be later signed by both chip and user.
+#### Dump First hash 
+Copy the command line in the console and run it.
 
 2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
 ```
 node dist/index dumphash 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x13e4422a8db5c5b4f9dc15d3d8d5576009cf08f1a14e9d598d361ebfc468738d 0x3b0fbf53f03acb30b7846d4be14c66c1c79821d36f3fa068dc2916ccd6b938b136a41c7e581bf5e478640a96df9a7855185b9751ef9d5b92df630a9fbbe2fdb81b 0xf43e575b371b0f70cd81c4e3732c60819dd233e1e409febce71d0607726cf59340455ceb20118b5964f7a45443c15fc5a5ed2bbf2a7962faf4be85e4a6b9c0d41c
+```
+
+#### Verify first hash
+Copy the command line in the console and run it.
+
+```
+node dist/index verify -f <uniqueId> <hash> ""
+```
+
+#### Window 2 - Mock signing by chip and user (mock S3, S4)
+_This step can be skipped when performing an integration test, where signing is done by the Chip. If no chip is available, CLI can mock the signing process._
+
+In window 1, CoT should sign the initial hash obtained from the Ethereum blockchain.
+```
+node dist/index demo-sign-window1
 ```
 #### Other hash 
 1. In terminal B, run

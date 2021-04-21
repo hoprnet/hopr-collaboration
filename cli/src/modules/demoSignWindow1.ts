@@ -1,5 +1,6 @@
 import Listr from 'listr';
 import { promises as fs } from 'fs';
+import { createHash } from 'crypto';
 import { sign, verify, createPrivateKey, createPublicKey } from 'crypto';
 
 const DEMO_FOLDER = './demo/';
@@ -13,23 +14,42 @@ export const demoSignWindow1 = async (): Promise<string> => {
                 ctx.priKey1 = await fs.readFile(`${DEMO_FOLDER}demo_key_1.pri`, "utf8");
                 ctx.priKey2 = await fs.readFile(`${DEMO_FOLDER}demo_key_2.pri`, "utf8");
                 ctx.data = await fs.readFile(`${RESULTS_FOLDER}startup_prevhash_hex.txt`, "utf8");
+                ctx.uniqueId = await fs.readFile(`${RESULTS_FOLDER}registration_UniqueID.txt`, "utf8");
             }
         },
         {
             title: 'Signing...',
             task: async (ctx: Listr.ListrContext) => {
-                ctx.signature1= (sign("sha256", Buffer.from(ctx.data), createPrivateKey({key: ctx.priKey1, format: 'pem', type: 'pkcs1'}))).toString("hex");
-                ctx.signature2= (sign("sha256", Buffer.from(ctx.data), createPrivateKey({key: ctx.priKey2, format: 'pem', type: 'pkcs1'}))).toString("hex");
+                ctx.signature1 = (sign("sha256", Buffer.from(ctx.data), createPrivateKey({key: ctx.priKey1, format: 'pem', type: 'pkcs1'}))).toString("hex");
+                ctx.signature2 = (sign("sha256", Buffer.from(ctx.data), createPrivateKey({key: ctx.priKey2, format: 'pem', type: 'pkcs1'}))).toString("hex");
+            }
+        },
+        {
+            title: 'Calculating new hash...',
+            task: async (ctx: Listr.ListrContext) => {
+                ctx.blockHash = createHash('sha256').update(ctx.data+"01").digest('hex');
             }
         },
         {
             title: 'Verify...',
-            task: async (ctx: Listr.ListrContext) => {
-                const publicKey1 = await fs.readFile(`${DEMO_FOLDER}demo_key_1.pub`, "utf8");
-                const publicKey2 = await fs.readFile(`${DEMO_FOLDER}demo_key_2.pub`, "utf8");
-
-                ctx.verified1 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature1, 'hex'));;
-                ctx.verified2 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature2, 'hex'));;
+            task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
+                try {
+                    const publicKey1 = await fs.readFile(`${DEMO_FOLDER}demo_key_1.pub`, "utf8");
+                    const publicKey2 = await fs.readFile(`${DEMO_FOLDER}demo_key_2.pub`, "utf8");
+                    ctx.publicKey1 = publicKey1;
+                    ctx.verified1 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature1, 'hex'));
+                    ctx.verified2 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature2, 'hex'));
+                    if (!ctx.verified1) {
+                        // Device/user pair is registered.
+                        throw new Error('First signature cannot be verified');
+                    }
+                    if (!ctx.verified2) {
+                        // Device/user pair is registered.
+                        throw new Error('Second signature cannot be verified');
+                    }
+                } catch (error) {
+                    task.skip(JSON.stringify(error));
+                }
             }
         },
         {
@@ -42,6 +62,7 @@ export const demoSignWindow1 = async (): Promise<string> => {
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Created keys for demo. Results are saved in ${RESULTS_FOLDER}demo_s1.txt and ${RESULTS_FOLDER}demo_s2.txt`);
+    console.log(`Created keys for demo. Results are saved in ${RESULTS_FOLDER}demo_s1.txt and ${RESULTS_FOLDER}demo_s2.txt. Next command to run:`);
+    console.log(`node dist/index dumphash ${ctx.uniqueId} 0x${ctx.blockHash} 0x${ctx.signature1} 0x${ctx.signature2}`)
     return ctx.uniqueId;
 }

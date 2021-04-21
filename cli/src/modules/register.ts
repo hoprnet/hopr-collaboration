@@ -51,7 +51,6 @@ export const register = async (devicePubKey: string, userPubKey: string, network
         {
             title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
-                await fs.appendFile(`${RESULTS_FOLDER}chain.txt`,ctx.uniqueId, 'utf8');
                 await fs.writeFile(`${RESULTS_SAVE_TO}.txt`, ctx.uniqueId, 'utf8');
             }
         }

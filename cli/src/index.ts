@@ -6,9 +6,10 @@ import program from 'commander';
 import { register } from './modules/register';
 import { startup } from './modules/startup';
 import { dumpHash } from './modules/dumpHash';
-import { verify } from './modules/verify';
+import { verifyData } from './modules/verifyData';
 import { demoCreateKeys } from './modules/demoCreateKeys';
 import { demoSignWindow1 } from './modules/demoSignWindow1';
+import { demoVerifyWindow1 } from './modules/demoVerifyWindow1';
 
 clear();
 console.log(
@@ -36,6 +37,12 @@ const cli = async () => {
     .description('Mock signing by the chip for window 1')
     .action(async () => {
       await demoSignWindow1();
+    })
+  program
+    .command('demo-verify-window1')
+    .description('Shortcut for verifying window 1')
+    .action(async () => {
+      await demoVerifyWindow1();
     })
 
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
@@ -68,8 +75,8 @@ const cli = async () => {
     .arguments('<uniqueid> <prevhash> <data> [network] [relayerkey]')
     .option('-f, --isfirstblock', 'first block')
     .description('Verify block data with unique device ID ')
-    .action(async (uniqueid, prevhash, data, network, relayerkey, options) => {
-      await verify(uniqueid, options.isfirstblock, prevhash, data, network, relayerkey);
+    .action(async (uniqueid, prevhash, datapath, network, relayerkey, options) => {
+      await verifyData(uniqueid, options.isfirstblock, prevhash, datapath, network, relayerkey);
     });
   
   await program.parseAsync(process.argv);
