@@ -7,6 +7,7 @@ import { register } from './modules/register';
 import { startup } from './modules/startup';
 import { dumpHash } from './modules/dumpHash';
 import { verify } from './modules/verify';
+import { demoCreateKeys } from './modules/demoCreateKeys';
 
 clear();
 console.log(
@@ -20,6 +21,14 @@ const cli = async () => {
     .version('0.0.1')
     .description("HOPR CLI for Chain on a Chip");
   
+  // yarn dev demo-create-keys
+  program
+    .command('demo-create-keys')
+    .description('Createa a pair of RSA keys for demo')
+    .action(async () => {
+      await demoCreateKeys();
+    })
+
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
   program
     .command('register <devicekey> <userkey> [network] [relayerkey]')
