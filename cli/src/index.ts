@@ -6,7 +6,11 @@ import program from 'commander';
 import { register } from './modules/register';
 import { startup } from './modules/startup';
 import { dumpHash } from './modules/dumpHash';
-import { verify } from './modules/verify';
+import { verifyData } from './modules/verifyData';
+import { demoCreateKeys } from './modules/demoCreateKeys';
+import { demoSignWindow1 } from './modules/demoSignWindow1';
+import { demoSignWindow2 } from './modules/demoSignWindow2';
+import { demoVerifyWindows } from './modules/demoVerifyWindows';
 
 clear();
 console.log(
@@ -20,6 +24,34 @@ const cli = async () => {
     .version('0.0.1')
     .description("HOPR CLI for Chain on a Chip");
   
+  // yarn dev demo-create-keys
+  program
+    .command('demo-create-keys [manual]')
+    .description('Create a pair of RSA keys for demo')
+    .option('-m, --manualregister', 'seperate register process')
+    .action(async (options) => {
+      await demoCreateKeys(options.manualregister);
+    })
+  // yarn dev demo-create-keys
+  program
+    .command('demo-sign-window1')
+    .description('Mock signing by the chip for window 1')
+    .action(async () => {
+      await demoSignWindow1();
+    })
+  program
+    .command('demo-verify-windows')
+    .description('Shortcut for verifying both windows')
+    .action(async () => {
+      await demoVerifyWindows();
+    })
+  program
+    .command('demo-sign-window2')
+    .description('Mock signing by the chip for window 2')
+    .action(async () => {
+      await demoSignWindow2();
+    })
+
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
   program
     .command('register <devicekey> <userkey> [network] [relayerkey]')
@@ -50,8 +82,8 @@ const cli = async () => {
     .arguments('<uniqueid> <prevhash> <data> [network] [relayerkey]')
     .option('-f, --isfirstblock', 'first block')
     .description('Verify block data with unique device ID ')
-    .action(async (uniqueid, prevhash, data, network, relayerkey, options) => {
-      await verify(uniqueid, options.isfirstblock, prevhash, data, network, relayerkey);
+    .action(async (uniqueid, prevhash, datapath, network, relayerkey, options) => {
+      await verifyData(uniqueid, options.isfirstblock, prevhash, datapath, network, relayerkey);
     });
   
   await program.parseAsync(process.argv);

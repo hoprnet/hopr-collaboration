@@ -22,96 +22,84 @@ Please see the README file for more details.
     nvm use
     ```
 4. Install [yarn](https://yarnpkg.com/lang/en/docs/install/)
-5. At root level, run the following commands to install packages
-```
-yarn install-all
-yarn env-all
-yarn build-all
-```
-
+5. Go to the `cli` folder and run `yarn && yarn build` to install packages and build the application
 ## Demo
-### Setup
-1. Follow [Installation](##Installation)
-2. In current terminal tab (A) and go to the `cli` folder
+This demo emulates the "startup" - "hash" - "sign" - "dump to blockchain" - "verify" life cycle for two windows of the chip.  
+It creates a pair of chip/user public-private keys to mock the signing process done by the silicon.  
+### Create a demo key pair
 ```
-cd cli
-nvm use
+node dist/index demo-create-keys -m true
 ```
-3. Open another terminal tab (B) and go to the `on-chain` folder
+If you want to automatically "register" (next step) the created demo key pairs without runnign an additional command, run 
 ```
-cd on-chain
-nvm use
+node dist/index demo-create-keys -m false
 ```
+
+Key pairs are saved in `demo/keys` folder.
+
 ### Register
-1. In terminal B, run 
 ```
-yarn demo-register --chip 1 --user 2
+node dist/index register <k1 (chip key)> <k2 (user key)>
 ```
-where `1` and `2` stands for the index of public keys given by the test setup. 
+If `node dist/index demo-create-keys -m true` was run in the previous step, copy the command line in the console and run it. For example,
+>```
+>node dist/index register dd34dcbc59971f539f71a847a4f365979f9a6e2728c56b896ad90fad80b6d0e125de597a288430ba0870ca3a14c739293701470634d722863d9a94b91550ed77929909a89306eeee37922d505a24e133cc441bcc74836f83165beeabbb89569665956a25a2dde34704fd6417aef141697eb7141c746ee947646c3fee1f7dfce5 c28d432e463c23e9d18175bc04006f6a5a7217bc0bc58d24ba85c38967d4d8d18d0d8d3528257d772b1269f61afbc5e9fd1de0d045b4f529eb6184e64b5a1af83dfb623031dd79ac3d5ff0d69b8e5ee81eda92d46ef83e2c7b7ded59a2674f6a9afa071c2f5cfc40ac1cf34c7c3bc978b89e2525763016b3d6d8c385d603ab9f
+>```
 
-2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
-`node dist/index register 0x04ba5734d8f7091719471e7f7ed6b9df170dc70cc661ca05e688601ad984f068b0d67351e5f06073092499336ab0839ef8a521afd334e53807205fa2f08eec74f4 0x049d9031e97dd78ff8c15aa86939de9b1e791066a0224e331bc962a2099a7b1f0464b8bbafe1535f2301c72c2cb3535b172da30b02686ab0393d348614f157fbdb`
-
-The returned unique ID is saved in the `result.txt` file.
+The returned unique ID is saved in the `results/registration_UniqueID.txt` file.
 
 ### Startup
-1. In terminal A, run
 ```
 node dist/index startup
 ```
-It returns the latest on chain block hash, which will be used as `prevHash` of the fistblock. This hash is appended as the second line in the result.txt` file. 
+It returns the latest on chain block hash, which will be saved in `results/startup_prevhash_hex.txt`. The CLI will hash the blockhash with `sha256(startup_prevhash_hex)` to compute the digest so that chip/user can directly sign the digest. Digest is saved in binary formate in `results/startup_inithash_to_sign_bin.txt` 
 
-Copy the blockhash
+### Runtime Window 1 - Mock signing by chip and user (mock S1, S2)
+_This step can be skipped when performing an integration test, where signing is done by the Chip. If no chip is available, CLI can mock the signing process._
 
-### Runtime - dump hash
-#### First hash 
-1. In terminal B, run
+In window 1, CoT should sign the initial hash obtained from the Ethereum blockchain.
 ```
-yarn demo-dumphash --chip 1 --user 2 --first true --address 0x9A676e781A523b5d0C0e43731313A708CB607508 --chain 77
-```
-where both indexes are exactly the same as in [Register](###Register).
-
-This test command will automatically pull the block hash returned from blockchain at step [Startup](###Startup) from the `result.txt` file as the `previousHash` to construct the data that will be later signed by both chip and user.
-
-2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
-```
-node dist/index dumphash 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x13e4422a8db5c5b4f9dc15d3d8d5576009cf08f1a14e9d598d361ebfc468738d 0x3b0fbf53f03acb30b7846d4be14c66c1c79821d36f3fa068dc2916ccd6b938b136a41c7e581bf5e478640a96df9a7855185b9751ef9d5b92df630a9fbbe2fdb81b 0xf43e575b371b0f70cd81c4e3732c60819dd233e1e409febce71d0607726cf59340455ceb20118b5964f7a45443c15fc5a5ed2bbf2a7962faf4be85e4a6b9c0d41c
-```
-#### Other hash 
-1. In terminal B, run
-```
-yarn demo-dumphash --chip 1 --user 2 --first false --data "some test data here" --address 0x9A676e781A523b5d0C0e43731313A708CB607508 --chain 77
-```
-where both indexes are exactly the same as in [Register](###Register).
-You can replace the `"some test data here"` with whatever data you prefer.
-
-2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
-```
-node dist/index dumphash 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x4a97086e6e167f6ce080bda50871b97d6833efaa46b01d94c3381c46bf0d4fba 0x4192e2c64ea27144776bb7c0ae19e261ef9bd2674c8754da493c15e75a4b9abe5839537b6192bae2f02abf63554d7c47b77a609b9c3da20177e4d6a5eba98adb1c 0xd791ad890a23645be687edadeffa5c21bd7b58011bb8b946f248f3ddaeb3d3c17dca75460fdd67e275e80169b695cb2b198aa00485988fdfc8f334db6ab4da521b
+node dist/index demo-sign-window1
 ```
 
-### Verify - onchain
-This part will be moved from onchain to offchain. The current documentation is valid for on-chain verification. 
+It saves chip's and user's signatures in `results/demo_s1.txt` and `results/demo_s2.txt` respectively. A new "blockchain" computed from `sha256(inithash, 00000001)` is saved in `results/window2_prevhash.txt`.
 
-#### First block
-1. In terminal B, run
-```
-yarn demo-verify --index 1 --first true
-```
-where index refers to the index of hash saved in the `result.txt` file. For start-block, the value is 1.
+CLI will show you the next command to be run for dumping hash on chain.
+### Runtime Dump the first hash 
+Copy the command line in the console and run it. The command looks like:
+>```
+>node dist/index dumphash 0x87c11255ee1bb45ac42df16f8979707adc1ce6f4f4a1bd793677b0a9f27975f7 0xd19fab1476d774fadce33ae6fe01f9aa664e4e7b0ce634ed13f5c911433a8f2e 0x0eca640b711b19a58ef2b197c76606320b9fa3a75ab7e03a4ead42c6ef4b2f2ae9a0b6554e9a800724570adf6a4f51a609244d679834331ef2fff1974a349d536a101e6acb654484373c51f92fc63ebca9e2262c4ff1a0b1cc8b1155ee6eb50d96cb39907d8fbf43029f46770d46bab552b2a66d9b56576419bfd0337745c278 0x57b00d7e6a3eb778046b0599c63e7a0b2a1dc32059f67d91ec68a280ac9e3a62671d5d43b0e6f97277d6149fd091152644b56468b03d8ae23e89fc77dc27631b2c1a115b79ef13c7fee7f510303ecf81d80579b0f1aba98e3866cf5042479bfec58db3ce1acfe3d9e1c5129efe868d3731ec4efd40127c0a7fc141e9894af4e9
+>```
 
-2. Copy the "Command" `node dist/index ... ` to terminal A and run, e.g.
+A transaction hash is returned and saved in `results.dump_hash_transaction.txt`
+
+### Runtime Window 2 - Mock signing by chip and user (mock S3, S4)
+_This step can be skipped when performing an integration test, where signing is done by the Chip. If no chip is available, CLI can mock the signing process._
+
+In window 1, CoT should sign the initial hash obtained from the Ethereum blockchain.
 ```
-node dist/index verify -f 0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x9c0039cd49ee6213c0e0acddc9e2bf167a82b555c9ff64263879705bc6466644 ""
-```
-#### Other blocks
-1. In terminal B, run
-```
-yarn demo-verify --index 2 --first false --data "some test data here"
+node dist/index demo-sign-window2
 ```
 
-where index refers to the index of hash saved in the `result.txt` file. The minimum value is 1 (start block).
-You can replace the `"some test data here"` with the data you used in the previous step.
+It saves chip's and user's signatures in `results/demo_s3.txt` and `results/demo_s4.txt` respectively. A demo binary data produced by the silicon is saved in `demo/data/data_bin.txt`. A new "blockchain" computed from `sha256(data, prevhash, 00000000)` is saved in `results/window3_prevhash.txt`.
+
+### Runtime Dump the second hash 
+Copy the command line in the console and run it. The command looks like:
+>```
+>node dist/index dumphash 0x87c11255ee1bb45ac42df16f8979707adc1ce6f4f4a1bd793677b0a9f27975f7 0x20d0f75af3ac1c835544e26b2a5cc3b6d1dfbeea6a0681beb0a32013d4b0b534 0x15f0813dc368d8904e4be21b09268d71993c6c7b0577af21b147d37235492159d67a5ba0628ec9b7eaafaade5c59c6c9489c2ad658cf64e0debff1ca790adc79248528bf3a2d556f468bfab0eea68c6694f7ad400093febbb075777f2008d896c1d8dacafc4d6c3925f681d00c0670f4195aaef4964fabe4b17fcba6e637d9a5 0x149b52d357d1a65b5ff58336d00c5cba45f2bdd2dc82a55c96198040aff52361165ae4c5a09ce2296b829cdc38da61063f238286cfc2cf2062487a7af83761c7410048327c76542d04269fac507f03163d988d6afc578fbc18bba43a9727b4dc5324b51f7a2ae3fcba1c1eca3c3e6b80cbb4be619d21b934f811ec82defb02c5
+>```
+
+A transaction hash is returned and saved in `results.dump_hash_transaction.txt`
+### Verify hashes
+
 ```
-node dist/index verify  0x0ce4034bc8b5d89af6634b99fa58da8af39174ee205b206d8c20a6257432b0ac 0x13e4422a8db5c5b4f9dc15d3d8d5576009cf08f1a14e9d598d361ebfc468738d "some test data here"
+node dist/index demo-verify-windows
 ```
+CLI also shows two commands at the end of the execution, which can be run separately for verifying data of each window. For example
+>For window 1. Run command:
+>`node dist/index verify -f 0x87c11255ee1bb45ac42df16f8979707adc1ce6f4f4a1bd793677b0a9f27975f7 91deec0ddc878515811b59276062116a7b9b7f24f5a6ad0872496fae71c34079 ""`
+
+>For window 2. Run command:
+>`node dist/index verify 0x87c11255ee1bb45ac42df16f8979707adc1ce6f4f4a1bd793677b0a9f27975f7 d19fab1476d774fadce33ae6fe01f9aa664e4e7b0ce634ed13f5c911433a8f2e "./demo/data/data_bin.txt"`
+### Final clean up
+Before running another demo, you can delete all the keys/results of the completed demo by running `yarn demo-clean`.

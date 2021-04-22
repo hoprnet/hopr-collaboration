@@ -3,6 +3,8 @@ import { promises as fs } from 'fs';
 import { constants, Signer, Wallet } from "ethers";
 import { BLOCK_CONFIRMATION, contract, explorerTx, provider } from "../web3/web3";
 
+const RESULTS_FOLDER = './results/';
+
 export const dumpHash = async (
     uniqueId: string,
     hash: string, 
@@ -48,10 +50,10 @@ export const dumpHash = async (
             }
         },
         {
-            title: 'Save dumped hash to local result.txt',
+            title: 'Save dumped hash to local file',
             task: async (ctx: Listr.ListrContext) => {
-                await fs.writeFile('./result.txt', ctx.txHash, 'utf8');
-                await fs.appendFile('./chain.txt', "\n"+hash, 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}dump_hash_transaction.txt`, ctx.txHash, 'utf8');
+                await fs.appendFile(`${RESULTS_FOLDER}chain.txt`, "\n"+hash.slice(2), 'utf8');
             }
         }
     ]);

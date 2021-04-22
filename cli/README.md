@@ -37,9 +37,11 @@ If you have followed the instruction of installation on the root level, please s
 ## Use
 
 ### Results
-Returned results are saved under two files: `chain.txt` and `result.txt` file. 
-- `result.txt` saves the result returned from current command. 
-- `chain.txt` appends all the results (in bytes32) since the last `register` command. `register` will overwrite the file.
+Returned results are saved in the `results` folder.
+- results are always appended to `chain.txt`. 
+- `startup_prevhash_hex.txt` stores the initial block hash from Ethereum blockchain at startup. 
+- `startup_inithash_to_sign_bin.txt` stores the binary of `sha256(prevhash)`, which is ready to be signed on chip by two keys. 
+- `registration_UniqueID.txt` stores the unique ID of the user-chip pair.
 
 ### Commands
 > <> denotes required parameters, [] denotes optional parameters.

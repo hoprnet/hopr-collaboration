@@ -22,7 +22,7 @@ allFiredEvents
 scTopics
 
 # Exclude secrets
-.env
+#.env
 
 # Exclude built npm packages
 *.tgz
