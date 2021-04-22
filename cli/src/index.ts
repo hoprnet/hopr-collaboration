@@ -9,6 +9,7 @@ import { dumpHash } from './modules/dumpHash';
 import { verifyData } from './modules/verifyData';
 import { demoCreateKeys } from './modules/demoCreateKeys';
 import { demoSignWindow1 } from './modules/demoSignWindow1';
+import { demoSignWindow2 } from './modules/demoSignWindow2';
 import { demoVerifyWindow1 } from './modules/demoVerifyWindow1';
 
 clear();
@@ -43,6 +44,12 @@ const cli = async () => {
     .description('Shortcut for verifying window 1')
     .action(async () => {
       await demoVerifyWindow1();
+    })
+  program
+    .command('demo-sign-window2')
+    .description('Mock signing by the chip for window 2')
+    .action(async () => {
+      await demoSignWindow2();
     })
 
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a

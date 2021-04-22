@@ -56,10 +56,12 @@ export const verifyData = async (
             title: 'Read data',
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 try {
-                    const a = isfirstblock ? "" : (await fs.readFile(datapath, "utf8"));
-                    ctx.msg = prevhash;
+                    const aBin = isfirstblock ? "" : ((await fs.readFile(datapath, "utf8")) ?? "").match(/.{4}/g);
+                    const a = (!aBin || aBin.length === 0 ? "" : aBin.reduce((acc: string, i: string) => acc + parseInt(i, 2).toString(16), ''));
+                    const b = prevhash
                     const c = isfirstblock ? "01" : "00";
-                    ctx.data = a + ctx.msg + c;
+                    ctx.msg = isfirstblock ? b : a;
+                    ctx.data = a + b + c;
                     task.title = 'Calculate digest';
                     ctx.newBlockHash = createHash('sha256').update(ctx.data).digest('hex');
                     const [ui, cs, us] = await Promise.all([
@@ -97,6 +99,6 @@ export const verifyData = async (
     ]);
 
     const ctx = await tasks.run();
-    console.log(`${ctx.verified1 && ctx.verified2? 'Verified' : 'Cannot verify'}`);
+    console.log(`${ctx.verified1 && ctx.verified2? 'Verified' : `Cannot verify, due to ${ctx.verified1} and ${ctx.verified1}`}`);
     return ctx.result;
 }

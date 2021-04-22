@@ -1,6 +1,6 @@
 import Listr from 'listr';
 import { promises as fs } from 'fs';
-// import execa from 'execa';
+import execa from 'execa';
 
 const RESULTS_FOLDER = './results/';
 
@@ -10,29 +10,32 @@ export const demoVerifyWindow1 = async (): Promise<string> => {
             title: 'Read ID and data',
             task: async (ctx: Listr.ListrContext) => {
                 ctx.uniqueId = await fs.readFile(`${RESULTS_FOLDER}registration_UniqueID.txt`, "utf8");
-                ctx.chain = (await fs.readFile(`${RESULTS_FOLDER}chain.txt`, "utf8")).split('\n')[0];
+                ctx.hashWindow1 = await fs.readFile(`${RESULTS_FOLDER}startup_prevhash_hex.txt`, "utf8");
+                ctx.hashWindow2 = await fs.readFile(`${RESULTS_FOLDER}window2_prevhash_hex.txt`, "utf8");
             }
         },
         {
-            title: 'Verify...',
+            title: 'Verify window 1',
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
-                task.title = `node dist/index verify -f ${ctx.uniqueId} ${ctx.chain} ""`;
-                // return new Promise((resolve, reject) => {
-                //     {
-                //         const cmd = execa('node', ['dist/index', 'verify', '-f', ctx.uniqueId, ctx.chain]);
-                //         cmd.then(resolve)
-                //             .catch(() => {
-                //               reject(new Error('Failed'));
-                //             });
-                //         return cmd;
-                //     }
-                // })
+                task.title = `node dist/index verify -f ${ctx.uniqueId} ${ctx.hashWindow1} ""`;
+                const {stdout} = await execa('node', ['dist/index', 'verify', '-f', ctx.uniqueId, ctx.hashWindow1, ""]);
+                console.log(stdout);
             }
         },
+        {
+            title: 'Verify window 2',
+            task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
+                task.title = `node dist/index verify ${ctx.uniqueId} ${ctx.hashWindow2} "./demo/data/data_bin.txt"`;
+                const {stdout} = await execa('node', ['dist/index', 'verify', ctx.uniqueId, ctx.hashWindow2, "./demo/data/data_bin.txt"]);
+                console.log(stdout);
+            }
+        }
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Ran command:`);
-    console.log(`node dist/index verify -f ${ctx.uniqueId} ${ctx.chain} ""`)
+    console.log(`For window 1. Run command:`);
+    console.log(`node dist/index verify -f ${ctx.uniqueId} ${ctx.hashWindow1} ""`)
+    console.log(`For window 2. Run command:`);
+    console.log(`node dist/index verify ${ctx.uniqueId} ${ctx.hashWindow2} "./demo/data/data_bin.txt"`)
     return ctx.uniqueId;
 }

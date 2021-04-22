@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import { createHash } from 'crypto';
 import { sign, verify, createPrivateKey, createPublicKey } from 'crypto';
 
-const DEMO_FOLDER = './demo/';
+const DEMO_FOLDER = './demo/keys/';
 const RESULTS_FOLDER = './results/';
 
 export const demoSignWindow1 = async (): Promise<string> => {
@@ -36,7 +36,6 @@ export const demoSignWindow1 = async (): Promise<string> => {
                 try {
                     const publicKey1 = await fs.readFile(`${DEMO_FOLDER}demo_key_1.pub`, "utf8");
                     const publicKey2 = await fs.readFile(`${DEMO_FOLDER}demo_key_2.pub`, "utf8");
-                    ctx.publicKey1 = publicKey1;
                     ctx.verified1 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature1, 'hex'));
                     ctx.verified2 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature2, 'hex'));
                     if (!ctx.verified1) {
@@ -57,6 +56,7 @@ export const demoSignWindow1 = async (): Promise<string> => {
             task: async (ctx: Listr.ListrContext) => {
                 await fs.writeFile(`${RESULTS_FOLDER}demo_s1.txt`, ctx.signature1, 'utf8');
                 await fs.writeFile(`${RESULTS_FOLDER}demo_s2.txt`, ctx.signature2, 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}window2_prevhash_hex.txt`, ctx.blockHash, 'utf8');
             }
         },
     ]);

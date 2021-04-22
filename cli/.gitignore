@@ -151,10 +151,9 @@ dist
 .tern-port
 
 
-demo/**
-#!demo/**/
-!demo/**/.gitkeep
-!demo/data_hex.txt
+demo/keys/**
+!demo/keys/**/
+!demo/keys/**/.gitkeep
 results/**
 #!results/**/
 !results/**/.gitkeep
