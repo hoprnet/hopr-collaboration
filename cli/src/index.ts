@@ -11,6 +11,7 @@ import { demoCreateKeys } from './modules/demoCreateKeys';
 import { demoSignWindow1 } from './modules/demoSignWindow1';
 import { demoSignWindow2 } from './modules/demoSignWindow2';
 import { demoVerifyWindows } from './modules/demoVerifyWindows';
+import { demoVerifyKnownSig } from './modules/demoVerifyKnownSig';
 
 clear();
 console.log(
@@ -46,12 +47,18 @@ const cli = async () => {
       await demoVerifyWindows();
     })
   program
-    .command('demo-sign-window2')
-    .description('Mock signing by the chip for window 2')
+  .command('demo-sign-window2')
+  .description('Mock signing by the chip for window 2')
+  .action(async () => {
+    await demoSignWindow2();
+  })
+  program
+    .command('demo-verify-known-sig')
+    .description('Shortcut for verifying signatures given by the lab')
     .action(async () => {
-      await demoSignWindow2();
+      await demoVerifyKnownSig();
     })
-
+    
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
   program
     .command('register <devicekey> <userkey> [network] [relayerkey]')
