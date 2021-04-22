@@ -11,6 +11,7 @@
     "start": "node ./dist/index.js",
     "dev": "ts-node src/index.ts",
     "build": "tsc -p .",
+    "demo-clean": "find ./demo/keys -type f -delete && find ./results -type f -delete",
     "refresh": "rm -rf ./node_modules ./package-lock.json && yarn"
   },
   "dependencies": {

@@ -151,9 +151,6 @@ dist
 .tern-port
 
 
-demo/keys/**
-!demo/keys/**/
-!demo/keys/**/.gitkeep
 results/**
 #!results/**/
 !results/**/.gitkeep
