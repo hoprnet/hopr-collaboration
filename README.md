@@ -101,3 +101,5 @@ CLI also shows two commands at the end of the execution, which can be run separa
 
 >For window 2. Run command:
 >`node dist/index verify 0x87c11255ee1bb45ac42df16f8979707adc1ce6f4f4a1bd793677b0a9f27975f7 d19fab1476d774fadce33ae6fe01f9aa664e4e7b0ce634ed13f5c911433a8f2e "./demo/data/data_bin.txt"`
+### Final clean up
+Before running another demo, you can delete all the keys/results of the completed demo by running `yarn demo-clean`.
