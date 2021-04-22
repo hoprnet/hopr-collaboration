@@ -4,7 +4,7 @@ import execa from 'execa';
 
 const RESULTS_FOLDER = './results/';
 
-export const demoVerifyWindow1 = async (): Promise<string> => {
+export const demoVerifyWindows = async (): Promise<string> => {
     const tasks = new Listr([
         {
             title: 'Read ID and data',

@@ -10,7 +10,7 @@ import { verifyData } from './modules/verifyData';
 import { demoCreateKeys } from './modules/demoCreateKeys';
 import { demoSignWindow1 } from './modules/demoSignWindow1';
 import { demoSignWindow2 } from './modules/demoSignWindow2';
-import { demoVerifyWindow1 } from './modules/demoVerifyWindow1';
+import { demoVerifyWindows } from './modules/demoVerifyWindows';
 
 clear();
 console.log(
@@ -40,10 +40,10 @@ const cli = async () => {
       await demoSignWindow1();
     })
   program
-    .command('demo-verify-window1')
-    .description('Shortcut for verifying window 1')
+    .command('demo-verify-windows')
+    .description('Shortcut for verifying both windows')
     .action(async () => {
-      await demoVerifyWindow1();
+      await demoVerifyWindows();
     })
   program
     .command('demo-sign-window2')
