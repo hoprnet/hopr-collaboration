@@ -52,7 +52,7 @@ The returned unique ID is saved in the `results/registration_UniqueID.txt` file.
 ```
 node dist/index startup
 ```
-It returns the latest on chain block hash, which will be saved in `results/startup_prevhash_hex.txt`. The CLI will hash the blockhash with `sha256(startup_prevhash_hex)` to compute the digest so that chip/user can directly sign the digest. Digest is saved in binary formate in `results/startup_inithash_to_sign_bin.txt` 
+It returns the latest on chain block hash, which will be saved in `results/startup_inithash_hex.txt`. The CLI will hash the blockhash with `sha256(startup_inithash_hex)` to compute the digest so that chip/user can directly sign the digest. Digest is saved in binary formate in `results/startup_inithash_bin.txt` 
 
 ### Runtime Window 1 - Mock signing by chip and user (mock S1, S2)
 _This step can be skipped when performing an integration test, where signing is done by the Chip. If no chip is available, CLI can mock the signing process._
@@ -81,7 +81,7 @@ In window 1, CoT should sign the initial hash obtained from the Ethereum blockch
 node dist/index demo-sign-window2
 ```
 
-It saves chip's and user's signatures in `results/demo_s3.txt` and `results/demo_s4.txt` respectively. A demo binary data produced by the silicon is saved in `demo/data/data_bin.txt`. A new "blockchain" computed from `sha256(data, prevhash, 00000000)` is saved in `results/window3_prevhash.txt`.
+It saves chip's and user's signatures in `results/demo_s3.txt` and `results/demo_s4.txt` respectively. A demo binary data produced by the silicon is saved in `demo/data/data_bin_1.txt` (for window 1) and `demo/data/data_bin_2.txt` (for window 2). A new "blockchain" computed from `sha256(data, prevhash, 00000000)` is saved in `results/window3_prevhash.txt`.
 
 ### Runtime Dump the second hash 
 Copy the command line in the console and run it. The command looks like:

@@ -56,11 +56,10 @@ export const verifyData = async (
             title: 'Read data',
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 try {
-                    const aBin = isfirstblock ? "" : ((await fs.readFile(datapath, "utf8")) ?? "").match(/.{4}/g);
+                    const aBin = ((await fs.readFile(datapath, "utf8")) ?? "").match(/.{4}/g);
                     const a = (!aBin || aBin.length === 0 ? "" : aBin.reduce((acc: string, i: string) => acc + parseInt(i, 2).toString(16), ''));
                     const b = prevhash
                     const c = isfirstblock ? "01" : "00";
-                    ctx.msg = isfirstblock ? b : a;
                     ctx.data = a + b + c;
                     task.title = 'Calculate digest';
                     ctx.newBlockHash = createHash('sha256').update(ctx.data).digest('hex');
@@ -92,8 +91,8 @@ export const verifyData = async (
         {
             title: 'Verify...',
             task: async (ctx: Listr.ListrContext) => {
-                ctx.verified1 = verify("sha256", Buffer.from(ctx.msg), createPublicKey({key: ctx.pk1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigChip.slice(2), 'hex'));
-                ctx.verified2 = verify("sha256", Buffer.from(ctx.msg), createPublicKey({key: ctx.pk2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigUser.slice(2), 'hex'));
+                ctx.verified1 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: ctx.pk1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigChip.slice(2), 'hex'));
+                ctx.verified2 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: ctx.pk2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigUser.slice(2), 'hex'));
             }
         }
     ]);

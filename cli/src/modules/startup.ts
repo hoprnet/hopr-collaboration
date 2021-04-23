@@ -3,7 +3,6 @@ import { promises as fs } from 'fs';
 import { Signer, Wallet } from "ethers";
 import { contract, provider, explorerBlock } from "../web3/web3";
 import hexToBinary from "hex-to-binary";
-import { createHash } from 'crypto';
 
 const RESULTS_FOLDER = './results/';
 
@@ -36,17 +35,11 @@ export const startup = async (network: string | undefined, signer: Signer | unde
             }
         },
         {
-            title: 'Compute digest of hash 0',
-            task: async (ctx: Listr.ListrContext) => {
-              ctx.digest = createHash('sha256').update(ctx.blockHash).digest('hex');
-            }
-        },
-        {
             title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
                 await fs.writeFile(`${RESULTS_FOLDER}chain.txt`, ctx.blockHash, 'utf8');
-                await fs.writeFile(`${RESULTS_FOLDER}startup_prevhash_hex.txt`, ctx.blockHash, 'utf8');
-                await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_to_sign_bin.txt`, hexToBinary(ctx.digest), 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_hex.txt`, ctx.blockHash, 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_bin.txt`, hexToBinary(ctx.blockHash), 'utf8');
             }
         }
     ]);

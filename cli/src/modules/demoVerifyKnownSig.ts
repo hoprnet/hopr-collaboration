@@ -10,7 +10,7 @@ export const demoVerifyKnownSig = async (): Promise<string> => {
         {
             title: 'Read ID and data',
             task: async (ctx: Listr.ListrContext) => {
-                ctx.binaryData = await fs.readFile("./demo/data/data_bin.txt", "utf8");
+                ctx.binaryData = await fs.readFile("./demo/data/data_bin_1.txt", "utf8");
                 const publicModule1 = 'f2786604371b04eea5c0bbf861eea4513cef619960868195f3199f272988ed6101d1ec4fefdc4284f55e056c9c121a4653cd2ff68bdee6c6da6433feb48fce905127ae8d67f2d9d6968e924142b3677ca4f2ee9427832b6589deed5d25ba008eed10460872d5baa98526b0ebd47528e6316257327c7eee96d18cda2b3e32bba9';
                 const publicModule2 = 'b3a8a8c512faaa6e600fe9d0a78a14ebb82447c304889a034138332bf076f4fc0240a457d529db73be6e932e21176ff9ceaf58c03c362aeccfda2c61f6729ab9771957d5c6a9361c48a7cf6fc533e68f4341a3e198bb1740a0f5e31e3c7f3d34bd3910d121eebe3b4395e3b1aaac16deb084a765208bbf44c25499891f391e3b';
                 ctx.pk1Pem = '-----BEGIN RSA PUBLIC KEY-----\n' + Buffer.from(PREFIX + publicModule1 + APPENDIX, 'hex').toString('base64') + '\n-----END RSA PUBLIC KEY-----\n';

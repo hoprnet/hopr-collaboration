@@ -39,8 +39,8 @@ If you have followed the instruction of installation on the root level, please s
 ### Results
 Returned results are saved in the `results` folder.
 - results are always appended to `chain.txt`. 
-- `startup_prevhash_hex.txt` stores the initial block hash from Ethereum blockchain at startup. 
-- `startup_inithash_to_sign_bin.txt` stores the binary of `sha256(prevhash)`, which is ready to be signed on chip by two keys. 
+- `startup_inithash_hex.txt` stores the initial block hash from Ethereum blockchain at startup. 
+- `startup_inithash_bin.txt` stores the binary of `sha256(prevhash)`, which is ready to be signed on chip by two keys. 
 - `registration_UniqueID.txt` stores the unique ID of the user-chip pair.
 
 ### Commands

@@ -4,6 +4,7 @@ import { createHash } from 'crypto';
 import { sign, verify, createPrivateKey, createPublicKey } from 'crypto';
 
 const DEMO_FOLDER = './demo/keys/';
+const RAW_DATA_FOLDER = './demo/data/';
 const RESULTS_FOLDER = './results/';
 
 export const demoSignWindow1 = async (): Promise<string> => {
@@ -13,21 +14,29 @@ export const demoSignWindow1 = async (): Promise<string> => {
             task: async (ctx: Listr.ListrContext) => {
                 ctx.priKey1 = await fs.readFile(`${DEMO_FOLDER}demo_key_1.pri`, "utf8");
                 ctx.priKey2 = await fs.readFile(`${DEMO_FOLDER}demo_key_2.pri`, "utf8");
-                ctx.data = await fs.readFile(`${RESULTS_FOLDER}startup_prevhash_hex.txt`, "utf8");
+                ctx.dataBin = await fs.readFile(`${RAW_DATA_FOLDER}data_bin_1.txt`, "utf8");
+                ctx.prevHash = await fs.readFile(`${RESULTS_FOLDER}startup_inithash_hex.txt`, "utf8");
                 ctx.uniqueId = await fs.readFile(`${RESULTS_FOLDER}registration_UniqueID.txt`, "utf8");
             }
         },
         {
-            title: 'Signing...',
+            title: 'Convert binary data to hex...',
             task: async (ctx: Listr.ListrContext) => {
-                ctx.signature1 = (sign("sha256", Buffer.from(ctx.data), createPrivateKey({key: ctx.priKey1, format: 'pem', type: 'pkcs1'}))).toString("hex");
-                ctx.signature2 = (sign("sha256", Buffer.from(ctx.data), createPrivateKey({key: ctx.priKey2, format: 'pem', type: 'pkcs1'}))).toString("hex");
+                ctx.dataBin2Hex = ctx.dataBin.match(/.{4}/g).reduce((acc: string, i: string) => acc + parseInt(i, 2).toString(16), '');
+                ctx.blockData = ctx.dataBin2Hex + ctx.prevHash + "01";
             }
         },
         {
             title: 'Calculating new hash...',
             task: async (ctx: Listr.ListrContext) => {
-                ctx.blockHash = createHash('sha256').update(ctx.data+"01").digest('hex');
+                ctx.blockHash = createHash('sha256').update(ctx.blockData).digest('hex');
+            }
+        },
+        {
+            title: 'Signing...',
+            task: async (ctx: Listr.ListrContext) => {
+                ctx.signature1 = (sign("sha256", Buffer.from(ctx.blockData), createPrivateKey({key: ctx.priKey1, format: 'pem', type: 'pkcs1'}))).toString("hex");
+                ctx.signature2 = (sign("sha256", Buffer.from(ctx.blockData), createPrivateKey({key: ctx.priKey2, format: 'pem', type: 'pkcs1'}))).toString("hex");
             }
         },
         {
@@ -36,8 +45,8 @@ export const demoSignWindow1 = async (): Promise<string> => {
                 try {
                     const publicKey1 = await fs.readFile(`${DEMO_FOLDER}demo_key_1.pub`, "utf8");
                     const publicKey2 = await fs.readFile(`${DEMO_FOLDER}demo_key_2.pub`, "utf8");
-                    ctx.verified1 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature1, 'hex'));
-                    ctx.verified2 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: publicKey2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature2, 'hex'));
+                    ctx.verified1 = verify("sha256", Buffer.from(ctx.blockData), createPublicKey({key: publicKey1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature1, 'hex'));
+                    ctx.verified2 = verify("sha256", Buffer.from(ctx.blockData), createPublicKey({key: publicKey2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.signature2, 'hex'));
                     if (!ctx.verified1) {
                         // Device/user pair is registered.
                         throw new Error('First signature cannot be verified');
