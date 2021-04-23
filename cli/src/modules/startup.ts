@@ -3,14 +3,13 @@ import { promises as fs } from 'fs';
 import { Signer, Wallet } from "ethers";
 import { contract, provider, explorerBlock } from "../web3/web3";
 import hexToBinary from "hex-to-binary";
-import { createHash } from 'crypto';
 
 const RESULTS_FOLDER = './results/';
 
 export const startup = async (network: string | undefined, signer: Signer | undefined): Promise<[string, string]> => {
     const tasks = new Listr([
         {
-            title: 'Connect to Ethereum blockchain',
+            title: 'Connect to blockchain',
             task: async (ctx) => {
                 let web3Provider;
                 try {
@@ -36,22 +35,17 @@ export const startup = async (network: string | undefined, signer: Signer | unde
             }
         },
         {
-            title: 'Compute digest of hash 0',
-            task: async (ctx: Listr.ListrContext) => {
-              ctx.digest = createHash('sha256').update(ctx.blockHash).digest('hex');
-            }
-        },
-        {
             title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
                 await fs.writeFile(`${RESULTS_FOLDER}chain.txt`, ctx.blockHash, 'utf8');
-                await fs.writeFile(`${RESULTS_FOLDER}startup_prevhash_hex.txt`, ctx.blockHash, 'utf8');
-                await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_to_sign_bin.txt`, hexToBinary(ctx.digest), 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}startup_blocknumber.txt`, ctx.blockNumber.toString(), 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_hex.txt`, ctx.blockHash, 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_bin.txt`, hexToBinary(ctx.blockHash), 'utf8');
             }
         }
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Latest on-chain block hash ${ctx.blockHash}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)}. Results are saved under ${RESULTS_FOLDER}`);
+    console.log(`Latest on-chain block hash ${ctx.blockHash} of block ${ctx.blockNumber}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)}. Results are saved under ${RESULTS_FOLDER}`);
     return [ctx.blockHash, ctx.hash0];
 }
