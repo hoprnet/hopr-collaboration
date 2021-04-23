@@ -64,6 +64,11 @@ node dist/index dumphash <uniqueid> <hash> <devicesig> <usersig> [network] [rela
 ```
 4. Verification
 ```
+node dist/index verify-init-hash <blocknumber> <blockhash> [network] [relayerkey]
+```
+verifies the initial blockchain with its block number. 
+
+```
 node dist/index verify <uniqueid> <prevhash> <data> [network] [relayerkey]
 ```
 For the first blockhash, please add a `-f` 

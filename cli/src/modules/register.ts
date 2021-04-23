@@ -8,7 +8,7 @@ const RESULTS_SAVE_TO = `${RESULTS_FOLDER}registration_UniqueID`;
 export const register = async (devicePubKey: string, userPubKey: string, network: string | undefined, signer: Signer | undefined): Promise<string> => {
     const tasks = new Listr([
         {
-            title: 'Connect to Ethereum blockchain',
+            title: 'Connect to blockchain',
             task: async (ctx) => {
                 let web3Provider;
                 try {

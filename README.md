@@ -52,7 +52,14 @@ The returned unique ID is saved in the `results/registration_UniqueID.txt` file.
 ```
 node dist/index startup
 ```
-It returns the latest on chain block hash, which will be saved in `results/startup_inithash_hex.txt`. The CLI will hash the blockhash with `sha256(startup_inithash_hex)` to compute the digest so that chip/user can directly sign the digest. Digest is saved in binary formate in `results/startup_inithash_bin.txt` 
+It returns the latest on chain block hash and its block number, which will be saved in `results/startup_inithash_hex.txt` and in `results/startup_blocknumber.txt` respectively. The CLI will hash the blockhash with `sha256(startup_inithash_hex)` to compute the digest so that chip/user can directly sign the digest. Digest is saved in binary formate in `results/startup_inithash_bin.txt` 
+
+
+### Verify startup
+To check if the intial block hash matches with its block number, run 
+```
+node dist/index startup_blocknumber
+```
 
 ### Runtime Window 1 - Mock signing by chip and user (mock S1, S2)
 _This step can be skipped when performing an integration test, where signing is done by the Chip. If no chip is available, CLI can mock the signing process._

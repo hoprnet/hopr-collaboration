@@ -9,7 +9,7 @@ const RESULTS_FOLDER = './results/';
 export const startup = async (network: string | undefined, signer: Signer | undefined): Promise<[string, string]> => {
     const tasks = new Listr([
         {
-            title: 'Connect to Ethereum blockchain',
+            title: 'Connect to blockchain',
             task: async (ctx) => {
                 let web3Provider;
                 try {
@@ -38,6 +38,7 @@ export const startup = async (network: string | undefined, signer: Signer | unde
             title: 'Save to local',
             task: async (ctx: Listr.ListrContext) => {
                 await fs.writeFile(`${RESULTS_FOLDER}chain.txt`, ctx.blockHash, 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}startup_blocknumber.txt`, ctx.blockNumber.toString(), 'utf8');
                 await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_hex.txt`, ctx.blockHash, 'utf8');
                 await fs.writeFile(`${RESULTS_FOLDER}startup_inithash_bin.txt`, hexToBinary(ctx.blockHash), 'utf8');
             }
@@ -45,6 +46,6 @@ export const startup = async (network: string | undefined, signer: Signer | unde
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Latest on-chain block hash ${ctx.blockHash}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)}. Results are saved under ${RESULTS_FOLDER}`);
+    console.log(`Latest on-chain block hash ${ctx.blockHash} of block ${ctx.blockNumber}. See block at ${explorerBlock(ctx.provider, ctx.blockNumber)}. Results are saved under ${RESULTS_FOLDER}`);
     return [ctx.blockHash, ctx.hash0];
 }

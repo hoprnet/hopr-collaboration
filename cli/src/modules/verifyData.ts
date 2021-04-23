@@ -17,7 +17,7 @@ export const verifyData = async (
 ): Promise<boolean> => {
     const tasks = new Listr([
         {
-            title: 'Connect to Ethereum blockchain',
+            title: 'Connect to blockchain',
             task: async (ctx) => {
                 let web3Provider;
                 try {

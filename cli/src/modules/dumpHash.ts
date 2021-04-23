@@ -16,7 +16,7 @@ export const dumpHash = async (
     let receipt;
     const tasks = new Listr([
         {
-            title: 'Connect to Ethereum blockchain',
+            title: 'Connect to blockchain',
             task: async (ctx) => {
                 let web3Provider;
                 try {

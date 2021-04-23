@@ -12,6 +12,8 @@ import { demoSignWindow1 } from './modules/demoSignWindow1';
 import { demoSignWindow2 } from './modules/demoSignWindow2';
 import { demoVerifyWindows } from './modules/demoVerifyWindows';
 import { demoVerifyKnownSig } from './modules/demoVerifyKnownSig';
+import { verifyInitHash } from './modules/verifyInitHash';
+import { demoVerifyInitHash } from './modules/demoVerifyInitHash';
 
 clear();
 console.log(
@@ -58,6 +60,12 @@ const cli = async () => {
     .action(async () => {
       await demoVerifyKnownSig();
     })
+  program
+    .command('demo-verify-init-hash')
+    .description('Shortcut for verifying initial hash with its block number')
+    .action(async () => {
+      await demoVerifyInitHash();
+    })
     
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
   program
@@ -91,6 +99,14 @@ const cli = async () => {
     .description('Verify block data with unique device ID ')
     .action(async (uniqueid, prevhash, datapath, network, relayerkey, options) => {
       await verifyData(uniqueid, options.isfirstblock, prevhash, datapath, network, relayerkey);
+    });
+
+  program
+    .command('verify-init-hash')
+    .arguments('<blocknumber> <blockhash> [network] [relayerkey]')
+    .description('Verify initial block hash by its number')
+    .action(async (blocknumber, blockhash, network, relayerkey) => {
+      await verifyInitHash(blocknumber, blockhash, network, relayerkey);
     });
   
   await program.parseAsync(process.argv);
