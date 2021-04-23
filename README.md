@@ -30,10 +30,6 @@ It creates a pair of chip/user public-private keys to mock the signing process d
 ```
 node dist/index demo-create-keys -m true
 ```
-If you want to automatically "register" (next step) the created demo key pairs without runnign an additional command, run 
-```
-node dist/index demo-create-keys -m false
-```
 
 Key pairs are saved in `demo/keys` folder.
 
@@ -58,7 +54,7 @@ It returns the latest on chain block hash and its block number, which will be sa
 ### Verify startup
 To check if the intial block hash matches with its block number, run 
 ```
-node dist/index startup_blocknumber
+node dist/index demo-verify-init-hash
 ```
 
 ### Runtime Window 1 - Mock signing by chip and user (mock S1, S2)
@@ -108,5 +104,17 @@ CLI also shows two commands at the end of the execution, which can be run separa
 
 >For window 2. Run command:
 >`node dist/index verify 0x87c11255ee1bb45ac42df16f8979707adc1ce6f4f4a1bd793677b0a9f27975f7 d19fab1476d774fadce33ae6fe01f9aa664e4e7b0ce634ed13f5c911433a8f2e "./demo/data/data_bin.txt"`
+
+It queries blockchain and saves returned values in following files in "results" folder:
+- "verify_uniqueId_1.txt": unique ID associated with the block hash computed from given data of window 1.
+- "verify_uniqueId_2.txt": unique ID associated with the block hash computed from given data of window 2.
+- "verify_k1.txt": public key of chip (K1) associated with the block hash computed from given data of window 1.
+- "verify_k2.txt": public key of user (K2) associated with the block hash computed from given data of window 1.
+- "verify_k3.txt": public key of chip (K1) associated with the block hash computed from given data of window 2.
+- "verify_k4.txt": public key of user (K2) associated with the block hash computed from given data of window 2.
+- "verify_S1.txt": signature of chip (S1) associated with the block hash computed from given data of window 1.
+- "verify_S2.txt": signature of user (S2) associated with the block hash computed from given data of window 1.
+- "verify_S3.txt": signature of chip (S1) associated with the block hash computed from given data of window 2.
+- "verify_S4.txt": signature of user (S2) associated with the block hash computed from given data of window 2.
 ### Final clean up
 Before running another demo, you can delete all the keys/results of the completed demo by running `yarn demo-clean`.

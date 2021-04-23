@@ -1,11 +1,11 @@
 import Listr from 'listr';
 import { promises as fs } from 'fs';
-import { createHash, verify, createPublicKey } from 'crypto';
+import { createHash } from 'crypto';
+// import { createHash, verify, createPublicKey } from 'crypto';
 import { Signer, Wallet } from "ethers";
 import { contract, provider } from "../web3/web3";
 
-const PREFIX = '30818902818100';
-const APPENDIX = '0203010001';
+const RESULTS_FOLDER = './results/';
 
 export const verifyData = async (
     uniqueId: string,
@@ -14,7 +14,7 @@ export const verifyData = async (
     datapath: string, // path to the file
     network: string | undefined, 
     signer: Signer | undefined
-): Promise<boolean> => {
+) => {
     const tasks = new Listr([
         {
             title: 'Connect to blockchain',
@@ -34,26 +34,7 @@ export const verifyData = async (
             }
         },
         {
-            title: 'Check device unique ID',
-            task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
-                try {
-                    const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId)
-                    if (registered.chip === "0x") {
-                        // Device/user pair is registered.
-                        throw new Error('Unique ID does not exist');
-                    }
-                    task.title = 'Get device/user public keys with unique ID';
-                    ctx.regChip = registered.chip;
-                    ctx.regUser = registered.user;
-                    ctx.pk1 = '-----BEGIN RSA PUBLIC KEY-----\n' + Buffer.from(PREFIX + registered.chip.slice(2) + APPENDIX, 'hex').toString('base64') + '\n-----END RSA PUBLIC KEY-----\n';
-                    ctx.pk2 = '-----BEGIN RSA PUBLIC KEY-----\n' + Buffer.from(PREFIX + registered.user.slice(2) + APPENDIX, 'hex').toString('base64') + '\n-----END RSA PUBLIC KEY-----\n';
-                } catch (error) {
-                    task.skip(JSON.stringify(error));
-                }
-            }
-        },
-        {
-            title: 'Read data',
+            title: 'Read data and compute block hash',
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 try {
                     const aBin = ((await fs.readFile(datapath, "utf8")) ?? "").match(/.{4}/g);
@@ -68,19 +49,9 @@ export const verifyData = async (
                         ctx.contract.connect(ctx.relayer).chipSignature('0x'+ctx.newBlockHash),
                         ctx.contract.connect(ctx.relayer).userSignature('0x'+ctx.newBlockHash)
                     ]);
+                    task.title = 'Get unique ID and signatures by computed block hash and save the unique Id locally';
+                    await fs.writeFile(`${RESULTS_FOLDER}verify_uniqueId_${isfirstblock? '1' : '2'}.txt`, ui, 'utf8');
                     ctx.ui = ui;
-                    if (uniqueId !== ui) {
-                        // Device/user pair is registered.
-                        throw new Error('Unique ID does not match');
-                    }
-                    if (cs === '0x') {
-                        // Device/user pair is registered.
-                        throw new Error('Chip signature does not exist');
-                    }
-                    if (us === '0x') {
-                        // Device/user pair is registered.
-                        throw new Error('User signature does not exist');
-                    }
                     ctx.sigChip = cs;
                     ctx.sigUser = us;
                 } catch (error) {
@@ -89,15 +60,63 @@ export const verifyData = async (
             }
         },
         {
-            title: 'Verify...',
+            title: 'Verify unique ID',
+            task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
+                if (ctx.ui !== uniqueId) {
+                    throw new Error('On-chain unique ID does not match with provided uniqueId');
+                }
+                const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId)
+                if (registered.chip === "0x") {
+                    // Device/user pair is registered.
+                    throw new Error(`Provided unique ID does not exist. No chip key (K${isfirstblock? '1' : '3'}) is associated with the provided ID`);
+                }
+                if (registered.user === "0x") {
+                    // Device/user pair is registered.
+                    throw new Error(`Provided unique ID does not exist. No user key (K${isfirstblock? '2' : '4'}) is associated with the provided ID`);
+                }
+                task.title = 'Get device/user public keys with unique ID';
+                ctx.regChip = registered.chip;
+                ctx.regUser = registered.user;
+        }
+        },
+        {
+            title: 'Verify signature',
             task: async (ctx: Listr.ListrContext) => {
-                ctx.verified1 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: ctx.pk1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigChip.slice(2), 'hex'));
-                ctx.verified2 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: ctx.pk2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigUser.slice(2), 'hex'));
+                if (ctx.sigChip === '0x') {
+                    // signature is registered under the blockhash
+                    throw new Error(`Chip signature (S${isfirstblock? '1' : '3'}) does not exist`);
+                }
+                if (ctx.sigUser === '0x') {
+                    // signature is registered under the blockhash
+                    throw new Error(`User signature (S${isfirstblock? '2' : '4'}) does not exist`);
+                }
+            }
+        },
+        // {
+        //     title: 'Compute',
+        //     task: async (ctx: Listr.ListrContext) => {
+        //         const PREFIX = '30818902818100';
+        //         const APPENDIX = '0203010001';
+        //         ctx.pk1 = '-----BEGIN RSA PUBLIC KEY-----\n' + Buffer.from(PREFIX + ctx.regChip.slice(2) + APPENDIX, 'hex').toString('base64') + '\n-----END RSA PUBLIC KEY-----\n';
+        //         ctx.pk2 = '-----BEGIN RSA PUBLIC KEY-----\n' + Buffer.from(PREFIX + ctx.regUser.slice(2) + APPENDIX, 'hex').toString('base64') + '\n-----END RSA PUBLIC KEY-----\n';
+        //         ctx.verified1 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: ctx.pk1, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigChip.slice(2), 'hex'));
+        //         ctx.verified2 = verify("sha256", Buffer.from(ctx.data), createPublicKey({key: ctx.pk2, format: 'pem', type: 'pkcs1'}), Buffer.from(ctx.sigUser.slice(2), 'hex'));
+        //     }
+        // },
+        {
+            title: 'Save public keys and signatures to local',
+            task: async (ctx: Listr.ListrContext) => {
+                await fs.writeFile(`${RESULTS_FOLDER}verify_k${isfirstblock? '1' : '3'}.txt`, ctx.regChip.slice(2), 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}verify_k${isfirstblock? '2' : '4'}.txt`, ctx.regUser.slice(2), 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}verify_S${isfirstblock? '1' : '3'}.txt`, ctx.sigChip.slice(2), 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}verify_S${isfirstblock? '2' : '4'}.txt`, ctx.sigUser.slice(2), 'utf8');
             }
         }
     ]);
 
-    const ctx = await tasks.run();
-    console.log(`${ctx.verified1 && ctx.verified2? 'Verified' : `Cannot verify, due to ${ctx.verified1} and ${ctx.verified1}`}`);
-    return ctx.result;
+    return tasks.run().catch(err => {
+        console.error(err.message)
+    }).then(()=>{
+        console.log(`Unique ID, public keys and signatures are saved in ${RESULTS_FOLDER}verify_+.txt`);
+    });
 }
