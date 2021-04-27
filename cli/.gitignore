@@ -22,7 +22,6 @@ allFiredEvents
 scTopics
 
 # Exclude secrets
-#.env
 
 # Exclude built npm packages
 *.tgz
@@ -113,8 +112,8 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
-.env.test
+#.env
+#.env.test
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
