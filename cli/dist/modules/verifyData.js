@@ -116,7 +116,8 @@ network, signer) => {
     ]);
     return tasks.run().catch(err => {
         console.error(err.message);
-    }).then(() => {
+    }).then((ctx) => {
+        console.log("ctx.newBlockHash", ctx.newBlockHash);
         console.log(`Unique ID, public keys and signatures are saved in ${RESULTS_FOLDER}verify_+.txt`);
     });
 };
