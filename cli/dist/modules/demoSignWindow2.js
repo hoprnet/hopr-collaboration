@@ -33,7 +33,7 @@ const demoSignWindow2 = async () => {
         {
             title: 'Calculating new hash...',
             task: async (ctx) => {
-                ctx.blockHash = crypto_1.createHash('sha256').update(ctx.blockData).digest('hex');
+                ctx.blockHash = crypto_1.createHash('sha256').update(Buffer.from(ctx.blockData, 'hex')).digest('hex');
             }
         },
         {

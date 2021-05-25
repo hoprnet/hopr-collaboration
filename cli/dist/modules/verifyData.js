@@ -43,7 +43,7 @@ network, signer) => {
                     const c = isfirstblock ? "01" : "00";
                     ctx.data = a + b + c;
                     task.title = 'Calculate digest';
-                    ctx.newBlockHash = crypto_1.createHash('sha256').update(ctx.data).digest('hex');
+                    ctx.newBlockHash = crypto_1.createHash('sha256').update(Buffer.from(ctx.data, 'hex')).digest('hex');
                     const [ui, cs, us] = await Promise.all([
                         ctx.contract.connect(ctx.relayer).chainDevicePair('0x' + ctx.newBlockHash),
                         ctx.contract.connect(ctx.relayer).chipSignature('0x' + ctx.newBlockHash),
