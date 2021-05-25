@@ -29,7 +29,7 @@ export const demoSignWindow2 = async (): Promise<string> => {
         {
             title: 'Calculating new hash...',
             task: async (ctx: Listr.ListrContext) => {
-                ctx.blockHash = createHash('sha256').update(ctx.blockData).digest('hex');
+                ctx.blockHash = createHash('sha256').update(Buffer.from(ctx.blockData, 'hex')).digest('hex');
             }
         },
         {
