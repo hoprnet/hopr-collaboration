@@ -8,8 +8,8 @@ const RESULTS_FOLDER = './results/';
 export const dumpHash = async (
     uniqueId: string,
     hash: string, 
-    chipSig: string, 
-    userSig: string, 
+    sig1: string, 
+    sig2: string, 
     network: string | undefined, 
     signer: Signer | undefined
 ): Promise<string> => {
@@ -37,12 +37,12 @@ export const dumpHash = async (
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId)
                 if (registered.chip === constants.AddressZero) {
-                    // Device/user pair is registered.
+                    // user/device pair is registered.
                     throw new Error('Unique ID does not exist');
                 }
                 task.title = 'Dump signed hash to Ethereum smart contract';
                 // dump hash
-                const tx = await ctx.contract.connect(ctx.relayer).dumpHash(uniqueId, hash, chipSig, userSig);
+                const tx = await ctx.contract.connect(ctx.relayer).dumpHash(uniqueId, hash, sig1, sig2);
                 ctx.txHash = tx.hash;
                 task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
                 task.output = `Follow transaction status at ${explorerTx(ctx.provider, tx.hash)}`;

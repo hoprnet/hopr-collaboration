@@ -9,7 +9,7 @@ const fs_1 = require("fs");
 const ethers_1 = require("ethers");
 const web3_1 = require("../web3/web3");
 const RESULTS_FOLDER = './results/';
-const dumpHash = async (uniqueId, hash, chipSig, userSig, network, signer) => {
+const dumpHash = async (uniqueId, hash, sig1, sig2, network, signer) => {
     let receipt;
     const tasks = new listr_1.default([
         {
@@ -35,12 +35,12 @@ const dumpHash = async (uniqueId, hash, chipSig, userSig, network, signer) => {
             task: async (ctx, task) => {
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId);
                 if (registered.chip === ethers_1.constants.AddressZero) {
-                    // Device/user pair is registered.
+                    // user/device pair is registered.
                     throw new Error('Unique ID does not exist');
                 }
                 task.title = 'Dump signed hash to Ethereum smart contract';
                 // dump hash
-                const tx = await ctx.contract.connect(ctx.relayer).dumpHash(uniqueId, hash, chipSig, userSig);
+                const tx = await ctx.contract.connect(ctx.relayer).dumpHash(uniqueId, hash, sig1, sig2);
                 ctx.txHash = tx.hash;
                 task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
                 task.output = `Follow transaction status at ${web3_1.explorerTx(ctx.provider, tx.hash)}`;

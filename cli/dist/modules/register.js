@@ -10,7 +10,7 @@ const ethers_1 = require("ethers");
 const web3_1 = require("../web3/web3");
 const RESULTS_FOLDER = './results/';
 const RESULTS_SAVE_TO = `${RESULTS_FOLDER}registration_UniqueID`;
-const register = async (devicePubKey, userPubKey, network, signer) => {
+const register = async (pubKey1, pubKey2, network, signer) => {
     const tasks = new listr_1.default([
         {
             title: 'Connect to blockchain',
@@ -31,11 +31,11 @@ const register = async (devicePubKey, userPubKey, network, signer) => {
             }
         },
         {
-            title: 'Compute Ethereum addresses from public keys and unique ID of the given device/user pair',
+            title: 'Compute Ethereum addresses from public keys and unique ID of the given user/device pair',
             task: async (ctx) => {
                 // compute pubkey to ethereum address
-                ctx.chip = devicePubKey.substring(0, 2) === '0x' ? devicePubKey : '0x' + devicePubKey;
-                ctx.user = userPubKey.substring(0, 2) === '0x' ? userPubKey : '0x' + userPubKey;
+                ctx.chip = pubKey1.substring(0, 2) === '0x' ? pubKey1 : '0x' + pubKey1;
+                ctx.user = pubKey2.substring(0, 2) === '0x' ? pubKey2 : '0x' + pubKey2;
                 ctx.uniqueId = await web3_1.getUniqueDeviceId(ctx.contract, { chip: ctx.chip, user: ctx.user });
             }
         },
@@ -43,7 +43,7 @@ const register = async (devicePubKey, userPubKey, network, signer) => {
             title: 'Register device',
             skip: async (ctx) => {
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(ctx.uniqueId);
-                console.log(`Device/user pair is registered.`);
+                console.log(`user/device pair is registered.`);
                 return registered.chip !== '0x';
             },
             task: async (ctx, task) => {
@@ -62,7 +62,7 @@ const register = async (devicePubKey, userPubKey, network, signer) => {
         }
     ]);
     const ctx = await tasks.run();
-    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}. ${!ctx.hash ? '' : `See transaction status at ${web3_1.explorerTx(ctx.provider, ctx.hash)}`}. Results are saved in ${RESULTS_SAVE_TO}.txt`);
+    console.log(`Key1 ${ctx.chip} and key2 ${ctx.user} are registered under ID ${ctx.uniqueId}. ${!ctx.hash ? '' : `See transaction status at ${web3_1.explorerTx(ctx.provider, ctx.hash)}`}. Results are saved in ${RESULTS_SAVE_TO}.txt`);
     return ctx.uniqueId;
 };
 exports.register = register;

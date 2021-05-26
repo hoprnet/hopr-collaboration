@@ -69,10 +69,10 @@ const cli = async () => {
     
   // yarn dev register 0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d 0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
   program
-    .command('register <devicekey> <userkey> [network] [relayerkey]')
-    .description('Register the device and user pair Ethereum smart contract and returns their unique ID')
-    .action(async (deviceKey, userkey, network, relayerkey) => {
-      await register(deviceKey, userkey, network, relayerkey);
+    .command('register <key1> <key2> [network] [relayerkey]')
+    .description('Register the user and device pair Ethereum smart contract and returns their unique ID')
+    .action(async (key1, key2, network, relayerkey) => {
+      await register(key1, key2, network, relayerkey);
     })
   
   // yarn dev startup
@@ -85,10 +85,10 @@ const cli = async () => {
   
   // yarn dev dumphash 0x13ca41d4bb73168c5a8edd549fd59ac673b7926798e1d56509c45be832fcf018 0x4b3cc390b9067686f13bb3722f2a9bfdc4cb53e041116b14c46f154276e892d0 0x9382d736097baa6a6823156186825442ffb7e8e6b0b85d3a9520c101e01e8c1d6c9196c8b948f0100171196ba5006690a741fc7a3d76ae45af9e13c279cd6ad51c 0xb0ab10b8b91d05a4f6d7425d1ffa9c81936bd7409036bba759a9554997590bcd003661fdbc857da8c544797920d54ddf12be27eb1602a3baf3ae760def45b1731b
   program
-    .command('dumphash <uniqueid> <hash> <devicesig> <usersig> [network] [relayerkey]')
+    .command('dumphash <uniqueid> <hash> <sig1> <sig2> [network] [relayerkey]')
     .description('Dump the latest blockhash to Ethereum blockchain')
-    .action(async (uniqueid, hash, devicesig, usersig, network, relayerkey) => {
-      await dumpHash(uniqueid, hash, devicesig, usersig, network, relayerkey);
+    .action(async (uniqueid, hash, sig1, sig2, network, relayerkey) => {
+      await dumpHash(uniqueid, hash, sig1, sig2, network, relayerkey);
     });
 
   // yarn dev verify -f 0x13ca41d4bb73168c5a8edd549fd59ac673b7926798e1d56509c45be832fcf018 0x8f6b072a5ca7816f308a6952d6348dd8247682cce17f2f01e63ee26dcd0ef043 ''
