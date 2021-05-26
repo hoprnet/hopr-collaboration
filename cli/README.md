@@ -48,7 +48,7 @@ Returned results are saved in the `results` folder.
 
 1. Registration (can be done while the chip is offline) 
 ```
-node dist/index register <devicekey> <userkey> [network] [relayerkey]
+node dist/index register <key1> <key2> [network] [relayerkey]
 ```
 The first blockhash to be signed is returned 
 
@@ -56,11 +56,11 @@ The first blockhash to be signed is returned
 ```
 node dist/index startup [network] [relayerkey]
 ```
-It returns the latest Ethereum blockhash and the digest that needs to be signed by both chip and user.
+It returns the latest Ethereum blockhash and the digest that needs to be signed by user and chip.
 
 3. Runtime / recording data
 ```
-node dist/index dumphash <uniqueid> <hash> <devicesig> <usersig> [network] [relayerkey]
+node dist/index dumphash <uniqueid> <hash> <signature1> <signature2> [network] [relayerkey]
 ```
 4. Verification
 ```

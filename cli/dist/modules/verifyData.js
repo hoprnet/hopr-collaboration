@@ -68,14 +68,14 @@ network, signer) => {
                 }
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId);
                 if (registered.chip === "0x") {
-                    // Device/user pair is registered.
-                    throw new Error(`Provided unique ID does not exist. No chip key (K${isfirstblock ? '1' : '3'}) is associated with the provided ID`);
+                    // user/device pair is registered.
+                    throw new Error(`Provided unique ID does not exist. No key1 (K${isfirstblock ? '1' : '3'}) is associated with the provided ID`);
                 }
                 if (registered.user === "0x") {
-                    // Device/user pair is registered.
-                    throw new Error(`Provided unique ID does not exist. No user key (K${isfirstblock ? '2' : '4'}) is associated with the provided ID`);
+                    // user/device pair is registered.
+                    throw new Error(`Provided unique ID does not exist. No key2 (K${isfirstblock ? '2' : '4'}) is associated with the provided ID`);
                 }
-                task.title = 'Get device/user public keys with unique ID';
+                task.title = 'Get user/device public keys with unique ID';
                 ctx.regChip = registered.chip;
                 ctx.regUser = registered.user;
             }
@@ -85,11 +85,11 @@ network, signer) => {
             task: async (ctx) => {
                 if (ctx.sigChip === '0x') {
                     // signature is registered under the blockhash
-                    throw new Error(`Chip signature (S${isfirstblock ? '1' : '3'}) does not exist`);
+                    throw new Error(`1st signature (S${isfirstblock ? '1' : '3'}) does not exist`);
                 }
                 if (ctx.sigUser === '0x') {
                     // signature is registered under the blockhash
-                    throw new Error(`User signature (S${isfirstblock ? '2' : '4'}) does not exist`);
+                    throw new Error(`2nd signature (S${isfirstblock ? '2' : '4'}) does not exist`);
                 }
             }
         },
@@ -105,12 +105,13 @@ network, signer) => {
         //     }
         // },
         {
-            title: 'Save public keys and signatures to local',
+            title: 'Save public keys, signatures and hashes to local',
             task: async (ctx) => {
                 await fs_1.promises.writeFile(`${RESULTS_FOLDER}verify_k${isfirstblock ? '1' : '3'}.txt`, ctx.regChip.slice(2), 'utf8');
                 await fs_1.promises.writeFile(`${RESULTS_FOLDER}verify_k${isfirstblock ? '2' : '4'}.txt`, ctx.regUser.slice(2), 'utf8');
                 await fs_1.promises.writeFile(`${RESULTS_FOLDER}verify_S${isfirstblock ? '1' : '3'}.txt`, ctx.sigChip.slice(2), 'utf8');
                 await fs_1.promises.writeFile(`${RESULTS_FOLDER}verify_S${isfirstblock ? '2' : '4'}.txt`, ctx.sigUser.slice(2), 'utf8');
+                await fs_1.promises.writeFile(`${RESULTS_FOLDER}verify_H${isfirstblock ? '1' : '2'}.txt`, ctx.newBlockHash, 'utf8');
             }
         }
     ]);

@@ -52,11 +52,11 @@ const demoSignWindow2 = async () => {
                     ctx.verified1 = crypto_2.verify("sha256", Buffer.from(ctx.blockData), crypto_2.createPublicKey({ key: publicKey1, format: 'pem', type: 'pkcs1' }), Buffer.from(ctx.signature1, 'hex'));
                     ctx.verified2 = crypto_2.verify("sha256", Buffer.from(ctx.blockData), crypto_2.createPublicKey({ key: publicKey2, format: 'pem', type: 'pkcs1' }), Buffer.from(ctx.signature2, 'hex'));
                     if (!ctx.verified1) {
-                        // Device/user pair is registered.
+                        // user/device pair is registered.
                         throw new Error('First signature cannot be verified');
                     }
                     if (!ctx.verified2) {
-                        // Device/user pair is registered.
+                        // user/device pair is registered.
                         throw new Error('Second signature cannot be verified');
                     }
                 }

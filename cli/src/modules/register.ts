@@ -5,7 +5,7 @@ import { BLOCK_CONFIRMATION, contract, explorerTx, getUniqueDeviceId, provider }
 
 const RESULTS_FOLDER = './results/';
 const RESULTS_SAVE_TO = `${RESULTS_FOLDER}registration_UniqueID`;
-export const register = async (devicePubKey: string, userPubKey: string, network: string | undefined, signer: Signer | undefined): Promise<string> => {
+export const register = async (pubKey1: string, pubKey2: string, network: string | undefined, signer: Signer | undefined): Promise<string> => {
     const tasks = new Listr([
         {
             title: 'Connect to blockchain',
@@ -25,11 +25,11 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             }
         },
         {
-            title: 'Compute Ethereum addresses from public keys and unique ID of the given device/user pair',
+            title: 'Compute Ethereum addresses from public keys and unique ID of the given user/device pair',
             task: async (ctx: Listr.ListrContext) => {
                 // compute pubkey to ethereum address
-                ctx.chip = devicePubKey.substring(0, 2) === '0x' ? devicePubKey : '0x'+devicePubKey;
-                ctx.user = userPubKey.substring(0, 2) === '0x' ? userPubKey : '0x'+userPubKey;
+                ctx.chip = pubKey1.substring(0, 2) === '0x' ? pubKey1 : '0x'+pubKey1;
+                ctx.user = pubKey2.substring(0, 2) === '0x' ? pubKey2 : '0x'+pubKey2;
                 ctx.uniqueId = await getUniqueDeviceId(ctx.contract, {chip: ctx.chip, user: ctx.user})
             }
         },
@@ -37,7 +37,7 @@ export const register = async (devicePubKey: string, userPubKey: string, network
             title: 'Register device',
             skip: async (ctx: Listr.ListrContext) => {
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(ctx.uniqueId)
-                console.log(`Device/user pair is registered.`);
+                console.log(`user/device pair is registered.`);
                 return registered.chip !== '0x';
             },
             task: async (ctx: Listr.ListrContext, task: Listr.ListrTaskWrapper) => {
@@ -57,6 +57,6 @@ export const register = async (devicePubKey: string, userPubKey: string, network
     ]);
 
     const ctx = await tasks.run();
-    console.log(`Device ${ctx.chip} and user ${ctx.user} are registered under ID ${ctx.uniqueId}. ${!ctx.hash ? '': `See transaction status at ${explorerTx(ctx.provider, ctx.hash)}`}. Results are saved in ${RESULTS_SAVE_TO}.txt`);
+    console.log(`Key1 ${ctx.chip} and key2 ${ctx.user} are registered under ID ${ctx.uniqueId}. ${!ctx.hash ? '': `See transaction status at ${explorerTx(ctx.provider, ctx.hash)}`}. Results are saved in ${RESULTS_SAVE_TO}.txt`);
     return ctx.uniqueId;
 }
