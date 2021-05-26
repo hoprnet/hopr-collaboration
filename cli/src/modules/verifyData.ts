@@ -104,12 +104,13 @@ export const verifyData = async (
         //     }
         // },
         {
-            title: 'Save public keys and signatures to local',
+            title: 'Save public keys, signatures and hashes to local',
             task: async (ctx: Listr.ListrContext) => {
                 await fs.writeFile(`${RESULTS_FOLDER}verify_k${isfirstblock? '1' : '3'}.txt`, ctx.regChip.slice(2), 'utf8');
                 await fs.writeFile(`${RESULTS_FOLDER}verify_k${isfirstblock? '2' : '4'}.txt`, ctx.regUser.slice(2), 'utf8');
                 await fs.writeFile(`${RESULTS_FOLDER}verify_S${isfirstblock? '1' : '3'}.txt`, ctx.sigChip.slice(2), 'utf8');
                 await fs.writeFile(`${RESULTS_FOLDER}verify_S${isfirstblock? '2' : '4'}.txt`, ctx.sigUser.slice(2), 'utf8');
+                await fs.writeFile(`${RESULTS_FOLDER}verify_H${isfirstblock? '1' : '2'}.txt`, ctx.newBlockHash, 'utf8');
             }
         }
     ]);
