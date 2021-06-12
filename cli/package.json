@@ -39,7 +39,7 @@
     "ts-node": "^9.1.1"
   },
   "engines": {
-    "node": "15",
+    "node": "16",
     "yarn": "1"
   },
   "keywords": [
