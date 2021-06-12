@@ -4,7 +4,4 @@ image:
 tasks:
 - before: cd cli
   init: yarn && yarn build 
-  command: node dist/startup
-- before: cd cli
-  openMode: split-right
-  command: node dist/index -h
+  command: node dist/startup && node dist/index -h
