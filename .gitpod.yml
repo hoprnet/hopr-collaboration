@@ -1,4 +1,4 @@
-image: node:16-apline
+image: node:16-alpine
 tasks:
 - before: cd cli
   init: yarn && yarn build 
