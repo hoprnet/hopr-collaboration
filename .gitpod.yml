@@ -4,3 +4,4 @@ image:
 tasks:
 - before: cd cli
   init: yarn && yarn build 
+  command: node dist/startup && node dist/index -h

@@ -2,7 +2,7 @@ import Listr from 'listr';
 import { promises as fs } from 'fs';
 import { createHash } from 'crypto';
 // import { createHash, verify, createPublicKey } from 'crypto';
-import { Signer, Wallet } from "ethers";
+import { constants, Signer, Wallet } from "ethers";
 import { contract, provider } from "../web3/web3";
 
 const RESULTS_FOLDER = './results/';
@@ -66,7 +66,7 @@ export const verifyData = async (
                     throw new Error('On-chain unique ID does not match with provided uniqueId');
                 }
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId)
-                if (registered.chip === "0x") {
+                if (registered.chip === "0x" || registered.chip === constants.AddressZero) {
                     // user/device pair is registered.
                     throw new Error(`Provided unique ID does not exist. No key1 (K${isfirstblock? '1' : '3'}) is associated with the provided ID`);
                 }

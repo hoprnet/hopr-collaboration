@@ -1,7 +1,4 @@
 #!/usr/bin/env node
-import clear from 'clear';
-import chalk from 'chalk';
-import figlet from 'figlet';
 import program from 'commander';
 import { register } from './modules/register';
 import { startup } from './modules/startup';
@@ -14,13 +11,6 @@ import { demoVerifyWindows } from './modules/demoVerifyWindows';
 import { demoVerifyKnownSig } from './modules/demoVerifyKnownSig';
 import { verifyInitHash } from './modules/verifyInitHash';
 import { demoVerifyInitHash } from './modules/demoVerifyInitHash';
-
-clear();
-console.log(
-  chalk.green(
-    figlet.textSync('Chain on a Chip', { horizontalLayout: 'full' })
-  )
-);
 
 const cli = async () => {
   program
