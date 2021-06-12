@@ -4,9 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const clear_1 = __importDefault(require("clear"));
-const chalk_1 = __importDefault(require("chalk"));
-const figlet_1 = __importDefault(require("figlet"));
 const commander_1 = __importDefault(require("commander"));
 const register_1 = require("./modules/register");
 const startup_1 = require("./modules/startup");
@@ -19,8 +16,6 @@ const demoVerifyWindows_1 = require("./modules/demoVerifyWindows");
 const demoVerifyKnownSig_1 = require("./modules/demoVerifyKnownSig");
 const verifyInitHash_1 = require("./modules/verifyInitHash");
 const demoVerifyInitHash_1 = require("./modules/demoVerifyInitHash");
-clear_1.default();
-console.log(chalk_1.default.green(figlet_1.default.textSync('Chain on a Chip', { horizontalLayout: 'full' })));
 const cli = async () => {
     commander_1.default
         .version('0.0.1')

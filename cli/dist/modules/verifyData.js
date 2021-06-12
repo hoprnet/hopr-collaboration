@@ -67,7 +67,7 @@ network, signer) => {
                     throw new Error('On-chain unique ID does not match with provided uniqueId');
                 }
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId);
-                if (registered.chip === "0x") {
+                if (registered.chip === "0x" || registered.chip === ethers_1.constants.AddressZero) {
                     // user/device pair is registered.
                     throw new Error(`Provided unique ID does not exist. No key1 (K${isfirstblock ? '1' : '3'}) is associated with the provided ID`);
                 }

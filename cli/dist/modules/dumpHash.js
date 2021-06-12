@@ -34,7 +34,7 @@ const dumpHash = async (uniqueId, hash, sig1, sig2, network, signer) => {
             title: 'Check device unique ID',
             task: async (ctx, task) => {
                 const registered = await ctx.contract.connect(ctx.relayer).deviceRegistration(uniqueId);
-                if (registered.chip === ethers_1.constants.AddressZero) {
+                if (registered.chip === ethers_1.constants.AddressZero || registered.chip === "0x") {
                     // user/device pair is registered.
                     throw new Error('Unique ID does not exist');
                 }
@@ -42,14 +42,29 @@ const dumpHash = async (uniqueId, hash, sig1, sig2, network, signer) => {
                 // dump hash
                 const tx = await ctx.contract.connect(ctx.relayer).dumpHash(uniqueId, hash, sig1, sig2);
                 ctx.txHash = tx.hash;
+                ctx.k1 = registered.chip;
+                ctx.k2 = registered.user;
                 task.title = `Register device. Broadcasted with transaction ${tx.hash}`;
                 task.output = `Follow transaction status at ${web3_1.explorerTx(ctx.provider, tx.hash)}`;
                 receipt = await ctx.provider.waitForTransaction(tx.hash, web3_1.BLOCK_CONFIRMATION);
+                const block = await ctx.provider.getBlock(receipt.blockNumber);
+                ctx.timestamp = block.timestamp;
             }
         },
         {
             title: 'Save dumped hash to local file',
             task: async (ctx) => {
+                const dumpHash = {
+                    uniqueId,
+                    k1: ctx.k1,
+                    k2: ctx.k2,
+                    dataHash: hash,
+                    sig1,
+                    sig2,
+                    txHash: ctx.txHash,
+                    timestamp: ctx.timestamp
+                };
+                await fs_1.promises.writeFile(`${RESULTS_FOLDER}dumpHash.json`, JSON.stringify(dumpHash, null, 2));
                 await fs_1.promises.writeFile(`${RESULTS_FOLDER}dump_hash_transaction.txt`, ctx.txHash, 'utf8');
                 await fs_1.promises.appendFile(`${RESULTS_FOLDER}chain.txt`, "\n" + hash.slice(2), 'utf8');
             }
